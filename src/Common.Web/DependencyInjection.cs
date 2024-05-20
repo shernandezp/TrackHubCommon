@@ -18,28 +18,17 @@ using Common.Web.Services;
 using Microsoft.AspNetCore.Mvc;
 using NSwag;
 using NSwag.Generation.Processors.Security;
-using ZymLabs.NSwag.FluentValidation;
-using Microsoft.Extensions.Logging;
 
 namespace Microsoft.Extensions.DependencyInjection;
 
 public static class DependencyInjection
 {
-    public static IServiceCollection AddWebServices(this IServiceCollection services)
+    public static IServiceCollection AddWebServices(this IServiceCollection services, string apiTitle)
     {
         services.AddDatabaseDeveloperPageExceptionFilter();
         services.AddScoped<IUser, CurrentUser>();
         services.AddHttpContextAccessor();
         services.AddExceptionHandler<CustomExceptionHandler>();
-        services.AddRazorPages();
-
-        services.AddScoped(provider =>
-        {
-            var validationRules = provider.GetService<IEnumerable<FluentValidationRule>>();
-            var loggerFactory = provider.GetService<ILoggerFactory>();
-
-            return new FluentValidationSchemaProcessor(provider, validationRules, loggerFactory);
-        });
 
         // Customise default API behaviour
         services.Configure<ApiBehaviorOptions>(options =>
@@ -49,13 +38,7 @@ public static class DependencyInjection
 
         services.AddOpenApiDocument((configure, sp) =>
         {
-            configure.Title = "ReThinkMarket API";
-
-            // Add the fluent validations schema processor
-            var fluentValidationSchemaProcessor =
-                sp.CreateScope().ServiceProvider.GetRequiredService<FluentValidationSchemaProcessor>();
-
-            configure.SchemaSettings.SchemaProcessors.Add(fluentValidationSchemaProcessor);
+            configure.Title = $"{apiTitle} API";
 
             // Add JWT
             configure.AddSecurity("JWT", [], new OpenApiSecurityScheme

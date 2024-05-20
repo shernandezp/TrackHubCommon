@@ -31,51 +31,21 @@ public class AuthorizationBehaviour<TRequest, TResponse>(
 
         if (authorizeAttributes.Any())
         {
-            // Must be authenticated user
             if (user.Id == null)
             {
                 throw new UnauthorizedAccessException();
             }
 
-            // Role-based authorization
-            var authorizeAttributesWithRoles = authorizeAttributes.Where(a => !string.IsNullOrWhiteSpace(a.Roles));
-
-            if (authorizeAttributesWithRoles.Any())
+            foreach (var attribute in authorizeAttributes)
             {
-                var authorized = false;
+                var resource = attribute.Resource;
+                var action = attribute.Action;
+                var roleAuthorized = await identityService.IsInRoleAsync(new Guid(user.Id), resource, action, cancellationToken);
+                var policyAuthorized = await identityService.AuthorizeAsync(new Guid(user.Id), resource, action, cancellationToken);
 
-                foreach (var roles in authorizeAttributesWithRoles.Select(a => a.Roles.Split(',')))
-                {
-                    foreach (var role in roles)
-                    {
-                        var isInRole = await identityService.IsInRoleAsync(new Guid(user.Id), role.Trim(), cancellationToken);
-                        if (isInRole)
-                        {
-                            authorized = true;
-                            break;
-                        }
-                    }
-                }
-
-                // Must be a member of at least one role in roles
-                if (!authorized)
+                if (!roleAuthorized || !policyAuthorized)
                 {
                     throw new ForbiddenAccessException();
-                }
-            }
-
-            // Policy-based authorization
-            var authorizeAttributesWithPolicies = authorizeAttributes.Where(a => !string.IsNullOrWhiteSpace(a.Policy));
-            if (authorizeAttributesWithPolicies.Any())
-            {
-                foreach (var policy in authorizeAttributesWithPolicies.Select(a => a.Policy))
-                {
-                    var authorized = await identityService.AuthorizeAsync(new Guid(user.Id), policy, cancellationToken);
-
-                    if (!authorized)
-                    {
-                        throw new ForbiddenAccessException();
-                    }
                 }
             }
         }

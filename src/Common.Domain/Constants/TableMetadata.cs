@@ -18,10 +18,14 @@ namespace Common.Domain.Constants;
 public static class TableMetadata
 {
     public const string Account = "accounts";
+    public const string Action = "actions";
     public const string Category = "categories";
-    public const string Profile = "profiles";
+    public const string Policy = "policies";
+    public const string Resource = "resources";
+    public const string ResourceActionPolicy = "resource_action_policy";
+    public const string ResourceActionRole = "resource_action_role";
     public const string Role = "roles";
     public const string User = "users";
     public const string UserRole = "user_role";
-    public const string UserProfile = "user_profile";
+    public const string UserPolicy = "user_policy";
 }

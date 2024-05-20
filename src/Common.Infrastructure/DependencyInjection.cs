@@ -13,7 +13,6 @@
 //  limitations under the License.
 //
 
-using Common.Domain.Constants;
 using Common.Infrastructure.Interceptors;
 using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
@@ -41,7 +40,6 @@ public static class DependencyInjection
                 options.TokenValidationParameters.ValidIssuer = configuration.GetValue<string>("AuthorityServer:Authority");
                 if (validateSigningKey)
                 {
-                    //Update this once the AuthorityServer separates the signing key from the certificate
                     var certificatePath = configuration.GetValue<string>("OpenIddict:Path");
                     var certificatePassword = configuration.GetValue<string>("OpenIddict:Password");
 
@@ -55,9 +53,6 @@ public static class DependencyInjection
             });
 
         services.AddSingleton(TimeProvider.System);
-
-        services.AddAuthorizationBuilder()
-            .AddPolicy(Policies.CanPurge, policy => policy.RequireRole(Roles.Administrator));
 
         return services;
     }
