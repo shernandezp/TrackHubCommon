@@ -13,7 +13,7 @@
 //  limitations under the License.
 //
 
-namespace Common.Application.Security;
+namespace Common.Application.Attributes;
 
 /// <summary>
 /// Specifies the class this attribute is applied to requires authorization.
