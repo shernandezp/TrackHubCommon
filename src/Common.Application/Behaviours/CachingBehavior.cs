@@ -21,7 +21,7 @@ using Common.Domain.Extensions;
 
 namespace Common.Application.Behaviours;
 public class CachingBehavior<TRequest, TResponse>(IDistributedCache cache, ILogger<CachingBehavior<TRequest, TResponse>> logger) 
-    : IPipelineBehavior<TRequest, TResponse> where TRequest : IRequest<TResponse> where TResponse : class
+    : IPipelineBehavior<TRequest, TResponse> where TRequest : IRequest<TResponse> //where TResponse : class
 {
     public async Task<TResponse> Handle(TRequest request, RequestHandlerDelegate<TResponse> next, CancellationToken cancellationToken)
     {

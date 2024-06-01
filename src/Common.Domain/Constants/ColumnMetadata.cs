@@ -17,10 +17,16 @@ namespace Common.Domain.Constants;
 
 public static class ColumnMetadata
 {
+    public const int DefaultFieldLength = 100;
     public const int DefaultNameLength = 200;
     public const int DefaultDescriptionLength = 500;
     public const int DefaultUserNameLength = 200;
     public const int DefaultEmailLength = 200;
+    public const int DefaultTokenLength = 200;
     public const int DefaultPasswordLength = 200;
+    public const int DefaultAddressLength = 250;
+    public const int DefaultPhoneNumberLength = 200;
     public const int MinimumPasswordLength = 6;
+
+    public const string TextField = "text";
 }

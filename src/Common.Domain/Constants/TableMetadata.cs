@@ -20,12 +20,19 @@ public static class TableMetadata
     public const string Account = "accounts";
     public const string Action = "actions";
     public const string Category = "categories";
+    public const string Credential = "credentials";
+    public const string Device = "devices";
+    public const string DeviceGroup = "device_group";
+    public const string Group = "groups";
+    public const string Operator = "operators";
     public const string Policy = "policies";
     public const string Resource = "resources";
     public const string ResourceActionPolicy = "resource_action_policy";
     public const string ResourceActionRole = "resource_action_role";
     public const string Role = "roles";
+    public const string Transporter = "transporters";
     public const string User = "users";
+    public const string UserGroup = "user_group";
     public const string UserRole = "user_role";
     public const string UserPolicy = "user_policy";
 }
