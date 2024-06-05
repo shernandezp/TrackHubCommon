@@ -14,6 +14,7 @@
 //
 
 using System.Text.Json;
+using Common.Domain.Extensions;
 using GraphQL;
 using GraphQL.Client.Abstractions;
 
@@ -36,6 +37,22 @@ public abstract class GraphQLService(IGraphQLClient graphQLClient)
             : ExtractFirstPropertyValue<T>(dataString);
     }
 
+    public async Task<T> MutationAsync<T>(GraphQLRequest request, CancellationToken token)
+    {
+
+        var response = await graphQLClient.SendMutationAsync<object>(request, token);
+
+        if (response == null || response.Data == null || (response.Errors != null && response.Errors.Length > 0))
+        {
+            throw new Exception("GraphQL mutation execution error.");
+        }
+
+        var dataString = response.Data.ToString();
+        return string.IsNullOrEmpty(dataString)
+            ? throw new Exception("Data string is null or empty.")
+            : ExtractFirstPropertyValue<T>(dataString);
+    }
+
     private static T ExtractFirstPropertyValue<T>(string json)
     {
         var dataObject = JsonDocument.Parse(json);
@@ -43,7 +60,7 @@ public abstract class GraphQLService(IGraphQLClient graphQLClient)
         if (property.Value.ValueKind != JsonValueKind.Null)
         {
             var propertyJson = property.Value.GetRawText();
-            var propertyValue = JsonSerializer.Deserialize<T>(propertyJson);
+            var propertyValue = propertyJson.Deserialize<T>();
             if (propertyValue != null)
                 return propertyValue;
         }

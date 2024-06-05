@@ -13,13 +13,24 @@
 //  limitations under the License.
 //
 
-namespace Common.Domain.Constants;
 
-public abstract class Actions
+using System.Text.Json;
+
+namespace Common.Domain.Extensions;
+public static class SerializationExtensions
 {
-    public const string Edit = nameof(Edit);
-    public const string Execute = nameof(Execute);
-    public const string Export = nameof(Export);
-    public const string View = nameof(View);
-    public const string Write = nameof(Write);
+    private static JsonSerializerOptions GetOptions()
+    {
+        return new JsonSerializerOptions
+        {
+            PropertyNameCaseInsensitive = true
+        };
+    }
+
+    public static T? Deserialize<T>(this string json)
+        => JsonSerializer.Deserialize<T>(json, GetOptions());
+
+    public static T? Deserialize<T>(this string json, JsonSerializerOptions options)
+        => JsonSerializer.Deserialize<T>(json, options);
+
 }
