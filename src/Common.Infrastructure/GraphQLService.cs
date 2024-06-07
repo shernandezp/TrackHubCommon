@@ -14,6 +14,7 @@
 //
 
 using System.Text.Json;
+using Common.Application.Exceptions;
 using Common.Domain.Extensions;
 using GraphQL;
 using GraphQL.Client.Abstractions;
@@ -24,11 +25,12 @@ public abstract class GraphQLService(IGraphQLClient graphQLClient)
     public async Task<T> QueryAsync<T>(GraphQLRequest request, CancellationToken token)
     {
 
-        var response = await graphQLClient.SendQueryAsync<object>(request, token);
+        var response = await graphQLClient.SendQueryAsync<object>(request, token) 
+            ?? throw new Exception("GraphQL query execution error.");
 
-        if (response == null || response.Data == null || (response.Errors != null && response.Errors.Length > 0))
+        if (response.Errors != null && response.Errors.Length > 0)
         {
-            throw new Exception("GraphQL query execution error.");
+            throw new GraphQLExecutionException(response.Errors);
         }
 
         var dataString = response.Data.ToString();
@@ -40,11 +42,12 @@ public abstract class GraphQLService(IGraphQLClient graphQLClient)
     public async Task<T> MutationAsync<T>(GraphQLRequest request, CancellationToken token)
     {
 
-        var response = await graphQLClient.SendMutationAsync<object>(request, token);
+        var response = await graphQLClient.SendMutationAsync<object>(request, token) 
+            ?? throw new Exception("GraphQL mutation execution error.");
 
-        if (response == null || response.Data == null || (response.Errors != null && response.Errors.Length > 0))
+        if (response.Errors != null && response.Errors.Length > 0)
         {
-            throw new Exception("GraphQL mutation execution error.");
+            throw new GraphQLExecutionException(response.Errors);
         }
 
         var dataString = response.Data.ToString();

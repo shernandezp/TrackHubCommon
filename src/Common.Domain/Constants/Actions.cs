@@ -20,6 +20,7 @@ public abstract class Actions
     public const string Edit = nameof(Edit);
     public const string Execute = nameof(Execute);
     public const string Export = nameof(Export);
-    public const string View = nameof(View);
+    public const string Read = nameof(Read);
     public const string Write = nameof(Write);
+    public const string Delete = nameof(Delete);
 }

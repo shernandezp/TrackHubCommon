@@ -14,6 +14,7 @@
 //
 
 using System.Reflection;
+using Ardalis.GuardClauses;
 using Common.Application.Behaviours;
 using Microsoft.Extensions.DependencyInjection;
 
@@ -23,11 +24,10 @@ public static class DependencyInjection
     public static IServiceCollection AddApplicationServices(this IServiceCollection services, Assembly? assembly)
     {
         services.AddValidatorsFromAssembly(assembly);
+        Guard.Against.Null(assembly, message: $"Application assemblies not loaded.");
 
         services.AddMediatR(cfg => {
-#pragma warning disable CS8604 // Possible null reference argument.
             cfg.RegisterServicesFromAssembly(assembly);
-#pragma warning restore CS8604 // Possible null reference argument.
             cfg.AddBehavior(typeof(IPipelineBehavior<,>), typeof(UnhandledExceptionBehaviour<,>));
             cfg.AddBehavior(typeof(IPipelineBehavior<,>), typeof(AuthorizationBehaviour<,>));
             cfg.AddBehavior(typeof(IPipelineBehavior<,>), typeof(ValidationBehaviour<,>));

@@ -17,8 +17,10 @@ namespace Common.Domain.Constants;
 
 public abstract class Policies
 {
-    public const string CanWrite = nameof(CanWrite);
+    public const string CanDelete = nameof(CanDelete);
+    public const string CanEdit = nameof(CanEdit);
     public const string CanExport = nameof(CanExport);
     public const string CanExecute = nameof(CanExecute);
-    public const string CanDelete = nameof(CanDelete);
+    public const string CanRead = nameof(CanRead);
+    public const string CanWrite = nameof(CanWrite);
 }

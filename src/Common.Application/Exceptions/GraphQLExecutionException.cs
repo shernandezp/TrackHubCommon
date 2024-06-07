@@ -13,14 +13,10 @@
 //  limitations under the License.
 //
 
-namespace Common.Domain.Constants;
+using GraphQL;
 
-public abstract class Roles
+namespace Common.Application.Exceptions;
+public class GraphQLExecutionException(IEnumerable<GraphQLError> errors) : Exception("GraphQL execution error.")
 {
-    public const string MasterAdministrator = nameof(MasterAdministrator);
-    public const string Administrator = nameof(Administrator);
-    public const string Manager = nameof(Manager);
-    public const string User = nameof(User);
-    public const string Provider = nameof(Provider);
-    public const string Integration = nameof(Integration);
+    public IEnumerable<GraphQLError> Errors { get; } = errors;
 }
