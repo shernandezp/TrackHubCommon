@@ -18,6 +18,7 @@ using Common.Application.Exceptions;
 using Common.Domain.Extensions;
 using GraphQL;
 using GraphQL.Client.Abstractions;
+using HotChocolate;
 
 namespace Common.Infrastructure;
 public abstract class GraphQLService(IGraphQLClient graphQLClient)
@@ -30,7 +31,7 @@ public abstract class GraphQLService(IGraphQLClient graphQLClient)
 
         if (response.Errors != null && response.Errors.Length > 0)
         {
-            throw new GraphQLExecutionException(response.Errors);
+            throw new GraphQLException(response.Errors.ConvertToIError());
         }
 
         var dataString = response.Data.ToString();
@@ -47,7 +48,7 @@ public abstract class GraphQLService(IGraphQLClient graphQLClient)
 
         if (response.Errors != null && response.Errors.Length > 0)
         {
-            throw new GraphQLExecutionException(response.Errors);
+            throw new GraphQLException(response.Errors.ConvertToIError());
         }
 
         var dataString = response.Data.ToString();

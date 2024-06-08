@@ -21,7 +21,7 @@ using Microsoft.Extensions.DependencyInjection;
 namespace Common.Application;
 public static class DependencyInjection
 {
-    public static IServiceCollection AddApplicationServices(this IServiceCollection services, Assembly? assembly)
+    public static IServiceCollection AddApplicationServices(this IServiceCollection services, Assembly? assembly, bool isGraphQL = true)
     {
         services.AddValidatorsFromAssembly(assembly);
         Guard.Against.Null(assembly, message: $"Application assemblies not loaded.");
@@ -30,8 +30,15 @@ public static class DependencyInjection
             cfg.RegisterServicesFromAssembly(assembly);
             cfg.AddBehavior(typeof(IPipelineBehavior<,>), typeof(UnhandledExceptionBehaviour<,>));
             cfg.AddBehavior(typeof(IPipelineBehavior<,>), typeof(AuthorizationBehaviour<,>));
-            cfg.AddBehavior(typeof(IPipelineBehavior<,>), typeof(ValidationBehaviour<,>));
             cfg.AddBehavior(typeof(IPipelineBehavior<,>), typeof(CachingBehavior<,>));
+            if (isGraphQL) 
+            {
+                cfg.AddBehavior(typeof(IPipelineBehavior<,>), typeof(GraphQLValidationBehaviour<,>));
+            }
+            else
+            {
+                cfg.AddBehavior(typeof(IPipelineBehavior<,>), typeof(ValidationBehaviour<,>));
+            }
         });
 
         return services;
