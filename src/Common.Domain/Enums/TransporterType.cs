@@ -14,11 +14,30 @@
 //
 
 namespace Common.Domain.Enums;
-
-public enum AccountType
+public enum TransporterType
 {
-    Unknown,
-    Personal,
-    Business,
-    Associate
+    Aircraft,
+    Asset,
+    Bicycle,
+    Boat,
+    Car,
+    CargoContainer,
+    ConstructionVehicle,
+    Child,
+    DeliveryVan,
+    Drone,
+    ElderlyPerson,
+    FleetVehicle,
+    HeavyEquipment,
+    Livestock,
+    Motorcycle,
+    Package,
+    Person,
+    Pet,
+    SchoolBus,
+    Scooter,
+    Taxi,
+    Tool,
+    Truck,
+    Tractor
 }

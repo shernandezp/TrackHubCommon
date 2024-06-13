@@ -13,12 +13,16 @@
 //  limitations under the License.
 //
 
-namespace Common.Domain.Enums;
+namespace Common.Domain.Extensions;
 
-public enum AccountType
+public static class CryptographyExtensions
 {
-    Unknown,
-    Personal,
-    Business,
-    Associate
+    public static string HashPassword(this string value)
+        => BCrypt.Net.BCrypt.HashPassword(value);
+
+    public static bool VerifyHashedPassword(this string hashedPassword, string password)
+        => BCrypt.Net.BCrypt.Verify(password, hashedPassword);
+
+    public static string GenerateSalt()
+        => DateTime.UtcNow.ToString("yyyyMMddHHmmssfff");
 }

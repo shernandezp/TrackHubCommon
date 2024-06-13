@@ -15,10 +15,22 @@
 
 namespace Common.Domain.Enums;
 
-public enum AccountType
+public enum DeviceType
 {
     Unknown,
-    Personal,
-    Business,
-    Associate
+    Aviation,
+    Camera,
+    Cycling,
+    Cellular,
+    Drones,
+    EmergencyLocator,
+    Fitness,
+    Handheld,
+    Marine,
+    OBDScanner,
+    PetTracking,
+    Phone,
+    Satellite,
+    Smartwatch,
+    Wearable
 }
