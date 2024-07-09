@@ -13,14 +13,10 @@
 //  limitations under the License.
 //
 
-namespace Common.Domain.Constants;
-
-public abstract class Policies
+namespace Common.Domain.Extensions;
+public static class DateTimeExtensions
 {
-    public const string AccessPosition = nameof(AccessPosition);
-    public const string FullAccess = nameof(FullAccess);
-    public const string ManageAccountSettings = nameof(ManageAccountSettings);
-    public const string ManageDevices = nameof(ManageDevices);
-    public const string ManageGroups = nameof(ManageGroups);
-    public const string ManageUserAccounts = nameof(ManageUserAccounts);
+    public static string ToIso8601String(this DateTimeOffset date)
+        => date.ToString("yyyy-MM-ddTHH:mm:ss.fffK");
+
 }

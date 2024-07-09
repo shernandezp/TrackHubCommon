@@ -61,7 +61,7 @@ public static class DependencyInjection
 
         if (identityEndpoint) 
         {
-            services.AddHttpClient(Clients.Identity, //Read from constants
+            services.AddHttpClient(Clients.Identity,
                 client =>
                 {
                     var url = configuration.GetValue<string>($"AppSettings:REST{Clients.Identity}Service");

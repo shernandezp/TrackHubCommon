@@ -17,9 +17,13 @@ namespace Common.Domain.Constants;
 
 public abstract class Resources
 {
-    public const string AccountScreen = nameof(AccountScreen);
-    public const string MapScreen = nameof(MapScreen);
-    public const string PermissionScreen = nameof(PermissionScreen);
+    public const string Accounts = nameof(Accounts);
+    public const string Credentials = nameof(Credentials);
+    public const string Devices = nameof(Devices);
+    public const string Groups = nameof(Groups);
+    public const string Operators = nameof(Operators);
+    public const string Positions = nameof(Positions);
+    public const string Permissions = nameof(Permissions);
     public const string SettingsScreen = nameof(SettingsScreen);
-    public const string UserScreen = nameof(UserScreen);
+    public const string Users = nameof(Users);
 }
