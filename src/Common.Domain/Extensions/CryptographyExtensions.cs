@@ -14,6 +14,7 @@
 //
 
 using System.Security.Cryptography;
+using System.Text;
 
 namespace Common.Domain.Extensions;
 
@@ -25,143 +26,57 @@ public static class CryptographyExtensions
     public static bool VerifyHashedPassword(this string hashedPassword, string password)
         => BCrypt.Net.BCrypt.Verify(password, hashedPassword);
 
-    public static byte[] GenerateSalt(byte[] wrappingKey)
-    { 
-        var keyToWrap = DateTime.UtcNow.ToString("yyyyMMddHHmmssfff");
-        var bytes = Convert.FromBase64String(keyToWrap);
-        return WrapKey_Aes(bytes, wrappingKey);
+    public static byte[] GenerateAesKey(int keySizeBits)
+    {
+        if (keySizeBits != 128 && keySizeBits != 192 && keySizeBits != 256)
+            throw new ArgumentException("Invalid key size. Valid sizes are 128, 192, or 256 bits.", nameof(keySizeBits));
+
+        byte[] key = new byte[keySizeBits / 8];
+        RandomNumberGenerator.Fill(key);
+        return key;
     }
 
-    public static byte[] DecryptSalt(this string wrappedKey, byte[] wrappingKey)
+    public static byte[] DeriveKey(string passphrase, byte[] salt, int keySize = 256, int iterations = 100000)
     {
-        var bytes = Convert.FromBase64String(wrappedKey);
-        return UnwrapKey_Aes(bytes, wrappingKey);
+        using var deriveBytes = new Rfc2898DeriveBytes(passphrase, salt, iterations, HashAlgorithmName.SHA256);
+        return deriveBytes.GetBytes(keySize / 8);
     }
 
-    public static string EncryptStringToBase64_Aes(this string plainText, byte[] key)
+    public static string EncryptData(this string dataToEncrypt, string passphrase, byte[] salt)
     {
-        if (plainText == null || plainText.Length <= 0)
-            throw new ArgumentNullException(nameof(plainText));
-        if (key == null || key.Length <= 0)
-            throw new ArgumentNullException(nameof(key));
+        byte[] dataToEncryptBytes = Encoding.UTF8.GetBytes(dataToEncrypt);
+        byte[] key = DeriveKey(passphrase, salt);
 
-        byte[] encrypted;
+        using var aesAlg = Aes.Create();
+        aesAlg.Key = key;
+        aesAlg.GenerateIV();
+        var encryptor = aesAlg.CreateEncryptor(aesAlg.Key, aesAlg.IV);
 
-        using (var aesAlg = Aes.Create())
-        {
-            aesAlg.Key = key;
-            aesAlg.GenerateIV();
-            var iv = aesAlg.IV;
+        using var msEncrypt = new MemoryStream();
+        using var csEncrypt = new CryptoStream(msEncrypt, encryptor, CryptoStreamMode.Write);
+        csEncrypt.Write(dataToEncryptBytes, 0, dataToEncryptBytes.Length);        
 
-            aesAlg.Mode = CipherMode.CBC;
-
-            var encryptor = aesAlg.CreateEncryptor(aesAlg.Key, iv);
-
-            using var msEncrypt = new MemoryStream();
-            msEncrypt.Write(iv, 0, iv.Length);
-            using (var csEncrypt = new CryptoStream(msEncrypt, encryptor, CryptoStreamMode.Write))
-            using (var swEncrypt = new StreamWriter(csEncrypt))
-            {
-                swEncrypt.Write(plainText);
-            }
-            encrypted = msEncrypt.ToArray();
-        }
-
-        return Convert.ToBase64String(encrypted);
+        var encryptedData = aesAlg.IV.Concat(msEncrypt.ToArray()).ToArray();
+        return Convert.ToBase64String(encryptedData);
     }
 
-    public static string DecryptStringFromBase64_Aes(this string cipherTextBase64, byte[] key)
+    public static string DecryptData(this string encryptedDataWithIvBase64, string passphrase, byte[] salt)
     {
-        if (string.IsNullOrEmpty(cipherTextBase64))
-            throw new ArgumentNullException(nameof(cipherTextBase64));
-        if (key == null || key.Length <= 0)
-            throw new ArgumentNullException(nameof(key));
+        byte[] encryptedDataWithIv = Convert.FromBase64String(encryptedDataWithIvBase64);
+        byte[] iv = encryptedDataWithIv.Take(16).ToArray();
+        byte[] encryptedData = encryptedDataWithIv.Skip(16).ToArray();
 
-        byte[] cipherText = Convert.FromBase64String(cipherTextBase64);
-        string plaintext;
+        byte[] key = DeriveKey(passphrase, salt);
 
-        using (var aesAlg = Aes.Create())
-        {
-            aesAlg.Key = key;
+        using var aesAlg = Aes.Create();
+        aesAlg.Key = key;
+        aesAlg.IV = iv;
+        var decryptor = aesAlg.CreateDecryptor(aesAlg.Key, aesAlg.IV);
 
-            // Extract the IV from the beginning of the ciphertext
-            var iv = new byte[aesAlg.BlockSize / 8];
-            Array.Copy(cipherText, 0, iv, 0, iv.Length);
-            aesAlg.IV = iv;
-
-            aesAlg.Mode = CipherMode.CBC;
-
-            var decryptor = aesAlg.CreateDecryptor(aesAlg.Key, iv);
-            using var msDecrypt = new MemoryStream(cipherText.Skip(iv.Length).ToArray());
-            using var csDecrypt = new CryptoStream(msDecrypt, decryptor, CryptoStreamMode.Read);
-            using var srDecrypt = new StreamReader(csDecrypt);
-            plaintext = srDecrypt.ReadToEnd();
-
-        }
-
-        return plaintext;
-    }
-
-    private static byte[] WrapKey_Aes(byte[] keyToWrap, byte[] wrappingKey)
-    {
-        if (keyToWrap == null || keyToWrap.Length <= 0)
-            throw new ArgumentNullException(nameof(keyToWrap));
-        if (wrappingKey == null || wrappingKey.Length <= 0)
-            throw new ArgumentNullException(nameof(wrappingKey));
-
-        byte[] wrappedKey;
-
-        using (var aesAlg = Aes.Create())
-        {
-            aesAlg.Key = wrappingKey;
-            aesAlg.GenerateIV();
-            var iv = aesAlg.IV;
-
-            aesAlg.Mode = CipherMode.CBC;
-
-            var encryptor = aesAlg.CreateEncryptor(aesAlg.Key, iv);
-
-            using var msEncrypt = new MemoryStream();
-            msEncrypt.Write(iv, 0, iv.Length); // Prepend the IV
-            using (var csEncrypt = new CryptoStream(msEncrypt, encryptor, CryptoStreamMode.Write))
-            {
-                csEncrypt.Write(keyToWrap, 0, keyToWrap.Length);
-            }
-            wrappedKey = msEncrypt.ToArray();
-        }
-
-        return wrappedKey;
-    }
-
-    private static byte[] UnwrapKey_Aes(byte[] wrappedKey, byte[] wrappingKey)
-    {
-        if (wrappedKey == null || wrappedKey.Length <= 0)
-            throw new ArgumentNullException(nameof(wrappedKey));
-        if (wrappingKey == null || wrappingKey.Length <= 0)
-            throw new ArgumentNullException(nameof(wrappingKey));
-
-        byte[] unwrappedKey;
-
-        using (var aesAlg = Aes.Create())
-        {
-            aesAlg.Key = wrappingKey;
-
-            // Extract the IV from the beginning of the wrapped key
-            var iv = new byte[aesAlg.BlockSize / 8];
-            Array.Copy(wrappedKey, 0, iv, 0, iv.Length);
-            aesAlg.IV = iv;
-
-            aesAlg.Mode = CipherMode.CBC;
-
-            var decryptor = aesAlg.CreateDecryptor(aesAlg.Key, iv);
-
-            using var msDecrypt = new MemoryStream(wrappedKey.Skip(iv.Length).ToArray());
-            using var csDecrypt = new CryptoStream(msDecrypt, decryptor, CryptoStreamMode.Read);
-            using var msResult = new MemoryStream();
-            csDecrypt.CopyTo(msResult);
-            unwrappedKey = msResult.ToArray();
-        }
-
-        return unwrappedKey;
+        using var msDecrypt = new MemoryStream(encryptedData);
+        using var csDecrypt = new CryptoStream(msDecrypt, decryptor, CryptoStreamMode.Read);
+        using var msResult = new MemoryStream();
+        csDecrypt.CopyTo(msResult);
+        return Encoding.UTF8.GetString(msResult.ToArray());
     }
 }
