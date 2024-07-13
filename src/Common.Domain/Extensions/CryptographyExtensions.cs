@@ -50,11 +50,13 @@ public static class CryptographyExtensions
         using var aesAlg = Aes.Create();
         aesAlg.Key = key;
         aesAlg.GenerateIV();
+        aesAlg.Padding = PaddingMode.PKCS7;
         var encryptor = aesAlg.CreateEncryptor(aesAlg.Key, aesAlg.IV);
 
         using var msEncrypt = new MemoryStream();
         using var csEncrypt = new CryptoStream(msEncrypt, encryptor, CryptoStreamMode.Write);
-        csEncrypt.Write(dataToEncryptBytes, 0, dataToEncryptBytes.Length);        
+        csEncrypt.Write(dataToEncryptBytes, 0, dataToEncryptBytes.Length);
+        csEncrypt.FlushFinalBlock();
 
         var encryptedData = aesAlg.IV.Concat(msEncrypt.ToArray()).ToArray();
         return Convert.ToBase64String(encryptedData);
@@ -71,12 +73,15 @@ public static class CryptographyExtensions
         using var aesAlg = Aes.Create();
         aesAlg.Key = key;
         aesAlg.IV = iv;
+        aesAlg.Padding = PaddingMode.PKCS7;
+
         var decryptor = aesAlg.CreateDecryptor(aesAlg.Key, aesAlg.IV);
 
         using var msDecrypt = new MemoryStream(encryptedData);
         using var csDecrypt = new CryptoStream(msDecrypt, decryptor, CryptoStreamMode.Read);
         using var msResult = new MemoryStream();
         csDecrypt.CopyTo(msResult);
+
         return Encoding.UTF8.GetString(msResult.ToArray());
     }
 }
