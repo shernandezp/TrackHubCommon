@@ -18,9 +18,16 @@ using HotChocolate;
 
 namespace Common.Application.Behaviours;
 
+// The GraphQLValidationBehaviour class is a pipeline behavior that performs validation on GraphQL requests.
+// It checks if there are any validators registered and if so, it executes them to validate the request.
+// If any validation failures occur, it throws a GraphQLException.
 public class GraphQLValidationBehaviour<TRequest, TResponse>(IEnumerable<IValidator<TRequest>> validators) : IPipelineBehavior<TRequest, TResponse>
-     where TRequest : notnull
+    where TRequest : notnull
 {
+    // This method handles the request by executing the validation logic.
+    // It checks if there are any validators registered and if so, it executes them to validate the request.
+    // If any validation failures occur, it throws a GraphQLException.
+    // Otherwise, it passes the request to the next handler in the pipeline.
     public async Task<TResponse> Handle(TRequest request, RequestHandlerDelegate<TResponse> next, CancellationToken cancellationToken)
     {
         if (validators.Any())

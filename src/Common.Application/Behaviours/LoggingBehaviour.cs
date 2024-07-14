@@ -19,20 +19,27 @@ using Microsoft.Extensions.Logging;
 
 namespace Common.Application.Behaviours;
 
+// Represents the LoggingBehaviour class.
 public class LoggingBehaviour<TRequest>(ILogger<TRequest> logger, IUser user, IIdentityService identityService) : IRequestPreProcessor<TRequest> where TRequest : notnull
 {
-
+    // Represents the Process method responsible for logging information about the incoming request.
     public async Task Process(TRequest request, CancellationToken cancellationToken)
     {
+        // Get the name of the request type.
         var requestName = typeof(TRequest).Name;
+        // Get the user ID.
         var userId = user.Id ?? string.Empty;
+        // Initialize the userName variable.
         string? userName = string.Empty;
 
+        // Check if the user ID is not empty.
         if (!string.IsNullOrEmpty(userId))
         {
+            // Get the user name based on the user ID.
             userName = await identityService.GetUserNameAsync(new Guid(userId), cancellationToken);
         }
 
+        // Log the information about the incoming request.
         logger.LogInformation("ReThinkMarket Request: {Name} {@UserId} {@UserName} {@Request}",
             requestName, userId, userName, request);
         return;

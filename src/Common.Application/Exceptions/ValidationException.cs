@@ -17,14 +17,24 @@ using FluentValidation.Results;
 
 namespace Common.Application.Exceptions;
 
+/// <summary>
+/// Represents an exception that is thrown when one or more validation failures occur.
+/// </summary>
 public class ValidationException : Exception
 {
+    /// <summary>
+    /// Initializes a new instance of the <see cref="ValidationException"/> class.
+    /// </summary>
     public ValidationException()
         : base("One or more validation failures have occurred.")
     {
         Errors = new Dictionary<string, string[]>();
     }
 
+    /// <summary>
+    /// Initializes a new instance of the <see cref="ValidationException"/> class with the specified validation failures.
+    /// </summary>
+    /// <param name="failures">The validation failures.</param>
     public ValidationException(IEnumerable<ValidationFailure> failures)
         : this()
     {
@@ -33,5 +43,8 @@ public class ValidationException : Exception
             .ToDictionary(failureGroup => failureGroup.Key, failureGroup => failureGroup.ToArray());
     }
 
+    /// <summary>
+    /// Gets the dictionary of validation errors.
+    /// </summary>
     public IDictionary<string, string[]> Errors { get; }
 }

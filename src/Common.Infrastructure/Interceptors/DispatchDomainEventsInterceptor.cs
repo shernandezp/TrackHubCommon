@@ -13,23 +13,26 @@
 //  limitations under the License.
 //
 
-using Common.Domain;
 using MediatR;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Diagnostics;
 
 namespace Common.Infrastructure.Interceptors;
 
+// This class represents an interceptor that dispatches domain events before saving changes to the database.
 public class DispatchDomainEventsInterceptor(IMediator mediator) : SaveChangesInterceptor
 {
+    // This method is called when saving changes to the database synchronously.
+    // It dispatches domain events and then calls the base implementation of saving changes.
     public override InterceptionResult<int> SavingChanges(DbContextEventData eventData, InterceptionResult<int> result)
     {
         DispatchDomainEvents(eventData.Context).GetAwaiter().GetResult();
 
         return base.SavingChanges(eventData, result);
-
     }
 
+    // This method is called when saving changes to the database asynchronously.
+    // It dispatches domain events and then calls the base implementation of saving changes asynchronously.
     public override async ValueTask<InterceptionResult<int>> SavingChangesAsync(DbContextEventData eventData, InterceptionResult<int> result, CancellationToken cancellationToken = default)
     {
         await DispatchDomainEvents(eventData.Context);
@@ -37,6 +40,8 @@ public class DispatchDomainEventsInterceptor(IMediator mediator) : SaveChangesIn
         return await base.SavingChangesAsync(eventData, result, cancellationToken);
     }
 
+    // This method dispatches domain events for entities that have pending domain events.
+    // It clears the domain events after dispatching them.
     public async Task DispatchDomainEvents(DbContext? context)
     {
         if (context == null) return;

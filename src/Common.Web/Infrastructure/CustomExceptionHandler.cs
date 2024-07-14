@@ -19,13 +19,15 @@ using Microsoft.AspNetCore.Mvc;
 
 namespace Common.Web.Infrastructure;
 
+// CustomExceptionHandler class implements the IExceptionHandler interface
+// to handle exceptions and return appropriate HTTP responses.
 public class CustomExceptionHandler : IExceptionHandler
 {
     private readonly Dictionary<Type, Func<HttpContext, Exception, Task>> _exceptionHandlers;
 
     public CustomExceptionHandler()
     {
-        // Register known exception types and handlers.
+        // Register known exception types and their corresponding handlers.
         _exceptionHandlers = new()
             {
                 { typeof(ValidationException), HandleValidationException },
@@ -35,6 +37,8 @@ public class CustomExceptionHandler : IExceptionHandler
             };
     }
 
+    // TryHandleAsync method attempts to handle the exception by invoking the appropriate handler based on the exception type.
+    // It returns true if the exception was handled successfully, otherwise false.
     public async ValueTask<bool> TryHandleAsync(HttpContext httpContext, Exception exception, CancellationToken cancellationToken)
     {
         var exceptionType = exception.GetType();
@@ -48,6 +52,8 @@ public class CustomExceptionHandler : IExceptionHandler
         return false;
     }
 
+    // HandleValidationException method handles the ValidationException by setting the response status code to 400 (Bad Request)
+    // and returning a ValidationProblemDetails object as JSON response.
     private async Task HandleValidationException(HttpContext httpContext, Exception ex)
     {
         var exception = (ValidationException)ex;
@@ -61,6 +67,8 @@ public class CustomExceptionHandler : IExceptionHandler
         });
     }
 
+    // HandleNotFoundException method handles the NotFoundException by setting the response status code to 404 (Not Found)
+    // and returning a ProblemDetails object as JSON response.
     private async Task HandleNotFoundException(HttpContext httpContext, Exception ex)
     {
         var exception = (NotFoundException)ex;
@@ -76,6 +84,8 @@ public class CustomExceptionHandler : IExceptionHandler
         });
     }
 
+    // HandleUnauthorizedAccessException method handles the UnauthorizedAccessException by setting the response status code to 401 (Unauthorized)
+    // and returning a ProblemDetails object as JSON response.
     private async Task HandleUnauthorizedAccessException(HttpContext httpContext, Exception ex)
     {
         httpContext.Response.StatusCode = StatusCodes.Status401Unauthorized;
@@ -88,6 +98,8 @@ public class CustomExceptionHandler : IExceptionHandler
         });
     }
 
+    // HandleForbiddenAccessException method handles the ForbiddenAccessException by setting the response status code to 403 (Forbidden)
+    // and returning a ProblemDetails object as JSON response.
     private async Task HandleForbiddenAccessException(HttpContext httpContext, Exception ex)
     {
         httpContext.Response.StatusCode = StatusCodes.Status403Forbidden;

@@ -18,14 +18,18 @@ using System.Text;
 
 namespace Common.Domain.Extensions;
 
+// Contains extension methods for cryptographic operations.
 public static class CryptographyExtensions
 {
+    // Hashes a password using BCrypt hashing algorithm.
     public static string HashPassword(this string value)
         => BCrypt.Net.BCrypt.HashPassword(value);
 
+    // Verifies a hashed password against a plain text password.
     public static bool VerifyHashedPassword(this string hashedPassword, string password)
         => BCrypt.Net.BCrypt.Verify(password, hashedPassword);
 
+    // Generates a random AES key of the specified key size.
     public static byte[] GenerateAesKey(int keySizeBits)
     {
         if (keySizeBits != 128 && keySizeBits != 192 && keySizeBits != 256)
@@ -36,12 +40,14 @@ public static class CryptographyExtensions
         return key;
     }
 
+    // Derives a key from a passphrase and salt using the Rfc2898DeriveBytes algorithm.
     public static byte[] DeriveKey(string passphrase, byte[] salt, int keySize = 256, int iterations = 100000)
     {
         using var deriveBytes = new Rfc2898DeriveBytes(passphrase, salt, iterations, HashAlgorithmName.SHA256);
         return deriveBytes.GetBytes(keySize / 8);
     }
 
+    // Encrypts the given data using AES encryption algorithm.
     public static string EncryptData(this string dataToEncrypt, string passphrase, byte[] salt)
     {
         byte[] dataToEncryptBytes = Encoding.UTF8.GetBytes(dataToEncrypt);
@@ -62,6 +68,7 @@ public static class CryptographyExtensions
         return Convert.ToBase64String(encryptedData);
     }
 
+    // Decrypts the given encrypted data using AES encryption algorithm.
     public static string DecryptData(this string encryptedDataWithIvBase64, string passphrase, byte[] salt)
     {
         byte[] encryptedDataWithIv = Convert.FromBase64String(encryptedDataWithIvBase64);

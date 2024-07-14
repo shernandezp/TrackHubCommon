@@ -18,14 +18,19 @@ using GraphQL;
 using HotChocolate;
 
 namespace Common.Application.Exceptions;
+
+// This class provides extension methods to convert different types of errors to IError objects
 public static class ExceptionConverter
 {
-    public static IError[] ConvertToIError(this IEnumerable<GraphQLError> graphQLError) 
+    // Converts a collection of GraphQLError objects to an array of IError objects
+    public static IError[] ConvertToIError(this IEnumerable<GraphQLError> graphQLError)
         => graphQLError.Select(error => error.ConvertToIError()).ToArray();
 
+    // Converts a collection of ValidationFailure objects to an array of IError objects
     public static IError[] ConvertToIError(this IEnumerable<ValidationFailure> graphQLError)
         => graphQLError.Select(error => error.ConvertToIError()).ToArray();
 
+    // Converts a GraphQLError object to an IError object
     public static IError ConvertToIError(this GraphQLError graphQLError)
     {
         IReadOnlyList<Location> locations = [];
@@ -46,15 +51,18 @@ public static class ExceptionConverter
         return error;
     }
 
+    // Converts a ValidationFailure object to an IError object
     public static IError ConvertToIError(this ValidationFailure validationFailure)
         => new Error(
             validationFailure.ErrorMessage
-            //,validationFailure.ErrorCode
-            //,new ExceptionPath(validationFailure.PropertyName)
+        //,validationFailure.ErrorCode
+        //,new ExceptionPath(validationFailure.PropertyName)
         );
 
+    // Represents a custom path for an error
     public class ExceptionPath : HotChocolate.Path
     {
+        // Initializes a new instance of the ExceptionPath class with an ErrorPath object
         public ExceptionPath(ErrorPath? errorPath)
         {
             if (errorPath != null)
@@ -66,6 +74,7 @@ public static class ExceptionConverter
             }
         }
 
+        // Initializes a new instance of the ExceptionPath class with a property name
         public ExceptionPath(string property)
         {
             if (!string.IsNullOrEmpty(property))
@@ -74,5 +83,4 @@ public static class ExceptionConverter
             }
         }
     }
-
 }

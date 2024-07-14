@@ -21,19 +21,36 @@ using Microsoft.Extensions.Configuration;
 using Common.Application.Interfaces;
 
 namespace Common.Infrastructure;
+
+// The `GraphQLClientFactory` class is responsible for creating instances of `IGraphQLClient`.
 public sealed class GraphQLClientFactory(IHttpClientFactory httpClientFactory, IConfiguration configuration) : IGraphQLClientFactory
 {
+    // Creates a new instance of `IGraphQLClient` with the specified name.
+    //
+    // - name: The name of the client.
+    //
+    // An instance of `IGraphQLClient`.
     public IGraphQLClient CreateClient(string name)
     {
+        // Create an instance of `HttpClient` using the `IHttpClientFactory`.
         var httpClient = httpClientFactory.CreateClient(name);
+
+        // Get the URL for the GraphQL service from the configuration.
         var url = configuration.GetValue<string>($"AppSettings:GraphQL{name}Service");
+
+        // Ensure that the URL is not null.
         Guard.Against.Null(url, message: $"Setting 'GraphQL{name}Service' not found.");
 
+        // Create an instance of `GraphQLHttpClientOptions` and set the endpoint URL.
         var options = new GraphQLHttpClientOptions
         {
             EndPoint = new Uri(url)
         };
+
+        // Create an instance of `SystemTextJsonSerializer` for JSON serialization.
         var jsonSerializer = new SystemTextJsonSerializer();
+
+        // Create and return a new instance of `GraphQLHttpClient`.
         return new GraphQLHttpClient(options, jsonSerializer, httpClient);
     }
 }

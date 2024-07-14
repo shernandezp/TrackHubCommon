@@ -18,10 +18,27 @@ using GraphQL;
 using Common.Domain.Constants;
 
 namespace Common.Infrastructure;
-public sealed class IdentityService(IGraphQLClientFactory graphQLClient) 
-    : GraphQLService(graphQLClient.CreateClient(Clients.Identity)), IIdentityService
-{
 
+/// <summary>
+/// Represents the implementation of the identity service.
+/// </summary>
+public sealed class IdentityService : GraphQLService, IIdentityService
+{
+    /// <summary>
+    /// Initializes a new instance of the <see cref="IdentityService"/> class.
+    /// </summary>
+    /// <param name="graphQLClient">The GraphQL client factory.</param>
+    public IdentityService(IGraphQLClientFactory graphQLClient)
+        : base(graphQLClient.CreateClient(Clients.Identity))
+    {
+    }
+
+    /// <summary>
+    /// Retrieves the username associated with the specified user ID.
+    /// </summary>
+    /// <param name="userId">The user ID.</param>
+    /// <param name="token">The cancellation token.</param>
+    /// <returns>The username.</returns>
     public Task<string> GetUserNameAsync(Guid userId, CancellationToken token)
     {
         var request = new GraphQLRequest
@@ -35,6 +52,14 @@ public sealed class IdentityService(IGraphQLClientFactory graphQLClient)
         return QueryAsync<string>(request, token);
     }
 
+    /// <summary>
+    /// Checks if the specified user is authorized to perform the specified action on the specified resource.
+    /// </summary>
+    /// <param name="userId">The user ID.</param>
+    /// <param name="resource">The resource.</param>
+    /// <param name="action">The action.</param>
+    /// <param name="token">The cancellation token.</param>
+    /// <returns>True if the user is authorized, otherwise false.</returns>
     public Task<bool> AuthorizeAsync(Guid userId, string resource, string action, CancellationToken token)
     {
         var request = new GraphQLRequest
@@ -48,6 +73,14 @@ public sealed class IdentityService(IGraphQLClientFactory graphQLClient)
         return QueryAsync<bool>(request, token);
     }
 
+    /// <summary>
+    /// Checks if the specified user is in the specified role for the specified resource and action.
+    /// </summary>
+    /// <param name="userId">The user ID.</param>
+    /// <param name="resource">The resource.</param>
+    /// <param name="action">The action.</param>
+    /// <param name="token">The cancellation token.</param>
+    /// <returns>True if the user is in the role, otherwise false.</returns>
     public Task<bool> IsInRoleAsync(Guid userId, string resource, string action, CancellationToken token)
     {
         var request = new GraphQLRequest

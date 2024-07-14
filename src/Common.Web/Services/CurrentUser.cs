@@ -18,6 +18,7 @@ using Common.Application.Interfaces;
 
 namespace Common.Web.Services;
 
+// Represents the current user in the web application.
 public class CurrentUser(IHttpContextAccessor httpContextAccessor) : IUser
 {
     public string? Id => httpContextAccessor.HttpContext?.User?.FindFirstValue(ClaimTypes.NameIdentifier);
