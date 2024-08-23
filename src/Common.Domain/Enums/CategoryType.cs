@@ -17,7 +17,6 @@ namespace Common.Domain.Enums;
 
 public enum CategoryType
 {
-    Unknown,
     Product = 1,
-    Service,
+    Service = 2,
 }

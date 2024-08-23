@@ -17,8 +17,7 @@ namespace Common.Domain.Enums;
 
 public enum AccountType
 {
-    Unknown,
-    Personal,
-    Business,
-    Associate
+    Personal = 1,
+    Business = 2,
+    Associate = 3,
 }

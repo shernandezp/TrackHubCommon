@@ -17,8 +17,10 @@ namespace Common.Domain.Enums;
 
 public enum ProtocolType
 {
-    CommandTrack,
-    Traccar,
-    OpenGTS,
-    GpsGate,
+    CommandTrack = 1,
+    Traccar = 2,
+    OpenGTS = 3,
+    GpsGate = 4,
+    FotaWeb = 5,
+    WIALON = 6,
 }

@@ -17,20 +17,19 @@ namespace Common.Domain.Enums;
 
 public enum DeviceType
 {
-    Unknown,
-    Aviation,
-    Camera,
-    Cycling,
-    Cellular,
-    Drones,
-    EmergencyLocator,
-    Fitness,
-    Handheld,
-    Marine,
-    OBDScanner,
-    PetTracking,
-    Phone,
-    Satellite,
-    Smartwatch,
-    Wearable
+    Aviation = 1,
+    Camera = 2,
+    Cycling = 3,
+    Cellular = 4,
+    Drones = 5,
+    EmergencyLocator = 6,
+    Fitness = 7,
+    Handheld = 8,
+    Marine = 9,
+    OBDScanner = 10,
+    PetTracking = 11,
+    Phone = 12,
+    Satellite = 13,
+    Smartwatch = 14,
+    Wearable = 15
 }
