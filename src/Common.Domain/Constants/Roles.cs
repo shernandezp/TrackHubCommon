@@ -17,10 +17,8 @@ namespace Common.Domain.Constants;
 
 public abstract class Roles
 {
-    public const string MasterAdministrator = nameof(MasterAdministrator);
     public const string Administrator = nameof(Administrator);
     public const string Manager = nameof(Manager);
     public const string User = nameof(User);
-    public const string Provider = nameof(Provider);
-    public const string Integration = nameof(Integration);
+    public const string Audit = nameof(Audit);
 }

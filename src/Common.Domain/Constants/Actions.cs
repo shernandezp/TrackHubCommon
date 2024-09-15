@@ -23,4 +23,7 @@ public abstract class Actions
     public const string Read = nameof(Read);
     public const string Write = nameof(Write);
     public const string Delete = nameof(Delete);
+    public const string UpdatePassword = nameof(UpdatePassword);
+    public const string RefreshToken = nameof(RefreshToken);
+    public const string ConnectivityTest = nameof(ConnectivityTest);
 }

@@ -18,6 +18,8 @@ namespace Common.Domain.Constants;
 public abstract class Clients
 {
     public const string Identity = nameof(Identity);
-    public const string Manager = nameof(Manager);
     public const string Hub = nameof(Hub);
+    public const string Manager = nameof(Manager);
+    public const string Security = nameof(Security);
+
 }
