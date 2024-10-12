@@ -18,6 +18,7 @@ namespace Common.Domain.Constants;
 public static class TableMetadata
 {
     public const string Account = "accounts";
+    public const string AccountSettings = "account_settings";
     public const string Action = "actions";
     public const string Category = "categories";
     public const string Credential = "credentials";
@@ -34,6 +35,7 @@ public static class TableMetadata
     public const string Transporter = "transporters";
     public const string User = "users";
     public const string UserGroup = "user_group";
+    public const string UserSettings = "user_settings";
     public const string UserRole = "user_role";
     public const string UserPolicy = "user_policy";
 }

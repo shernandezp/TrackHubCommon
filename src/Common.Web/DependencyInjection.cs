@@ -16,8 +16,6 @@
 using Common.Application.Interfaces;
 using Common.Web.Services;
 using Microsoft.AspNetCore.Mvc;
-using NSwag;
-using NSwag.Generation.Processors.Security;
 
 namespace Microsoft.Extensions.DependencyInjection;
 
@@ -35,22 +33,6 @@ public static class DependencyInjection
             options.SuppressModelStateInvalidFilter = true);
 
         services.AddEndpointsApiExplorer();
-
-        services.AddOpenApiDocument((configure, sp) =>
-        {
-            configure.Title = $"{apiTitle} API";
-
-            // Add JWT
-            configure.AddSecurity("JWT", [], new OpenApiSecurityScheme
-            {
-                Type = OpenApiSecuritySchemeType.ApiKey,
-                Name = "Authorization",
-                In = OpenApiSecurityApiKeyLocation.Header,
-                Description = "Type into the textbox: Bearer {your JWT token}."
-            });
-
-            configure.OperationProcessors.Add(new AspNetCoreOperationSecurityScopeProcessor("JWT"));
-        });
 
         return services;
     }

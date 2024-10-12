@@ -20,12 +20,12 @@ namespace Common.Web.Infrastructure;
 // Extension methods for the WebApplication class.
 public static class WebApplicationExtensions
 {
-    // Maps an endpoint group to a route in the web application.
-    // Parameters:
-    // - app: The WebApplication instance.
-    // - group: The EndpointGroupBase instance representing the endpoint group to be mapped.
-    // Returns:
-    // - A RouteGroupBuilder instance for further configuration.
+    /// <summary>
+    /// Maps an endpoint group to a route in the web application.
+    /// </summary>
+    /// <param name="app">The WebApplication instance.</param>
+    /// <param name="group">The EndpointGroupBase instance representing the endpoint group to be mapped.</param>
+    /// <returns>A RouteGroupBuilder instance for further configuration.</returns>
     public static RouteGroupBuilder MapGroup(this WebApplication app, EndpointGroupBase group)
     {
         var groupName = group.GetType().Name;
@@ -33,16 +33,15 @@ public static class WebApplicationExtensions
         return app
             .MapGroup($"/api/{groupName}")
             .WithGroupName(groupName)
-            .WithTags(groupName)
-            .WithOpenApi();
+            .WithTags(groupName);
     }
 
-    // Maps all endpoint groups in the specified assembly to the web application.
-    // Parameters:
-    // - app: The WebApplication instance.
-    // - assembly: The Assembly containing the endpoint group types.
-    // Returns:
-    // - The modified WebApplication instance.
+    /// <summary>
+    /// Maps all endpoint groups in the specified assembly to the web application.
+    /// </summary>
+    /// <param name="app">The WebApplication instance.</param>
+    /// <param name="assembly">The Assembly containing the endpoint group types.</param>
+    /// <returns>The modified WebApplication instance.</returns>
     public static WebApplication MapEndpoints(this WebApplication app, Assembly assembly)
     {
         var endpointGroupType = typeof(EndpointGroupBase);
