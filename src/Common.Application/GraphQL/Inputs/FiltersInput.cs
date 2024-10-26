@@ -13,14 +13,9 @@
 //  limitations under the License.
 //
 
-using System.Security.Claims;
-using Common.Application.Interfaces;
+namespace Common.Application.GraphQL.Inputs;
 
-namespace Common.Web.Services;
-
-// Represents the current user in the web application.
-public class CurrentUser(IHttpContextAccessor httpContextAccessor) : IUser
+public class FiltersInput
 {
-    public string? Id => httpContextAccessor.HttpContext?.User?.FindFirstValue(ClaimTypes.NameIdentifier);
-    public string? Client => httpContextAccessor.HttpContext?.User?.FindFirstValue("client_id");
+    public List<FilterItemInput> Filters { get; set; } = [];
 }

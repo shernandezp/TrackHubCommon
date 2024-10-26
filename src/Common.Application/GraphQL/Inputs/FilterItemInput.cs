@@ -13,14 +13,14 @@
 //  limitations under the License.
 //
 
-using System.Security.Claims;
-using Common.Application.Interfaces;
+using Common.Application.GraphQL.Types;
+using HotChocolate;
 
-namespace Common.Web.Services;
+namespace Common.Application.GraphQL.Inputs;
 
-// Represents the current user in the web application.
-public class CurrentUser(IHttpContextAccessor httpContextAccessor) : IUser
+public class FilterItemInput
 {
-    public string? Id => httpContextAccessor.HttpContext?.User?.FindFirstValue(ClaimTypes.NameIdentifier);
-    public string? Client => httpContextAccessor.HttpContext?.User?.FindFirstValue("client_id");
+    public required string Key { get; set; }
+    [GraphQLType(typeof(AnyType))]
+    public required object Value { get; set; }
 }

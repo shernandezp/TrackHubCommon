@@ -14,9 +14,11 @@
 //
 
 using System.Reflection;
+using System.Security.Claims;
 using Common.Application.Attributes;
 using Common.Application.Exceptions;
 using Common.Application.Interfaces;
+using Common.Domain.Constants;
 
 namespace Common.Application.Behaviours;
 
@@ -40,22 +42,34 @@ public class AuthorizationBehaviour<TRequest, TResponse>(
                 throw new UnauthorizedAccessException();
             }
 
-            // Iterate through each AuthorizeAttribute
-            foreach (var attribute in authorizeAttributes)
+            if (user.Id == "service")
             {
-                var resource = attribute.Resource;
-                var action = attribute.Action;
-
-                // Check if the user is in the required role
-                var roleAuthorized = await identityService.IsInRoleAsync(new Guid(user.Id), resource, action, cancellationToken);
-
-                // Check if the user is authorized based on policies
-                var policyAuthorized = await identityService.AuthorizeAsync(new Guid(user.Id), resource, action, cancellationToken);
-
-                // If the user is not authorized, throw ForbiddenAccessException
-                if (!roleAuthorized || !policyAuthorized)
+                var validService = await identityService.IsValidServiceAsync(user.Client, cancellationToken);
+                //Extend the service validation to check roles and policies
+                if (!validService)
                 {
-                    throw new ForbiddenAccessException();
+                    throw new UnauthorizedAccessException();
+                }
+            }
+            else
+            {
+                // Iterate through each AuthorizeAttribute
+                foreach (var attribute in authorizeAttributes)
+                {
+                    var resource = attribute.Resource;
+                    var action = attribute.Action;
+
+                    // Check if the user is in the required role
+                    var roleAuthorized = await identityService.IsInRoleAsync(new Guid(user.Id), resource, action, cancellationToken);
+
+                    // Check if the user is authorized based on policies
+                    var policyAuthorized = await identityService.AuthorizeAsync(new Guid(user.Id), resource, action, cancellationToken);
+
+                    // If the user is not authorized, throw ForbiddenAccessException
+                    if (!roleAuthorized || !policyAuthorized)
+                    {
+                        throw new ForbiddenAccessException();
+                    }
                 }
             }
         }
@@ -63,4 +77,5 @@ public class AuthorizationBehaviour<TRequest, TResponse>(
         // User is authorized / authorization not required, proceed to the next handler
         return await next();
     }
+
 }

@@ -28,7 +28,7 @@ public static class DependencyInjection
         services.AddHttpContextAccessor();
         services.AddExceptionHandler<CustomExceptionHandler>();
 
-        // Customise default API behaviour
+        // Customize default API behaviour
         services.Configure<ApiBehaviorOptions>(options =>
             options.SuppressModelStateInvalidFilter = true);
 

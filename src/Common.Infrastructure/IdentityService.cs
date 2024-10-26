@@ -22,16 +22,13 @@ namespace Common.Infrastructure;
 /// <summary>
 /// Represents the implementation of the identity service.
 /// </summary>
-public sealed class IdentityService : GraphQLService, IIdentityService
+/// <remarks>
+/// Initializes a new instance of the <see cref="IdentityService"/> class.
+/// </remarks>
+/// <param name="graphQLClient">The GraphQL client factory.</param>
+public sealed class IdentityService(IGraphQLClientFactory graphQLClient) 
+    : GraphQLService(graphQLClient.CreateClient(Clients.Identity)), IIdentityService
 {
-    /// <summary>
-    /// Initializes a new instance of the <see cref="IdentityService"/> class.
-    /// </summary>
-    /// <param name="graphQLClient">The GraphQL client factory.</param>
-    public IdentityService(IGraphQLClientFactory graphQLClient)
-        : base(graphQLClient.CreateClient(Clients.Identity))
-    {
-    }
 
     /// <summary>
     /// Retrieves the username associated with the specified user ID.
@@ -90,6 +87,19 @@ public sealed class IdentityService : GraphQLService, IIdentityService
                         isInRole(query: { action: $action, resource: $resource, userId: $userId })
                     }",
             Variables = new { userId, resource, action }
+        };
+        return QueryAsync<bool>(request, token);
+    }
+
+    public Task<bool> IsValidServiceAsync(string? client, CancellationToken token)
+    {
+        var request = new GraphQLRequest
+        {
+            Query = @"
+                    query($client: String!) {
+                        isValidService(query: { client: $client })
+                    }",
+            Variables = new { client }
         };
         return QueryAsync<bool>(request, token);
     }
