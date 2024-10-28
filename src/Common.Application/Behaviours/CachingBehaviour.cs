@@ -24,13 +24,14 @@ namespace Common.Application.Behaviours;
 public class CachingBehaviour<TRequest, TResponse>(IDistributedCache cache, ILogger<CachingBehaviour<TRequest, TResponse>> logger)
     : IPipelineBehavior<TRequest, TResponse> where TRequest : IRequest<TResponse>
 {
-    // METHOD: Handle
-    // DESCRIPTION: Handles the request by checking if there is a cache policy and retrieving the response from cache if available.
-    // PARAMETERS:
-    // - request: The request object.
-    // - next: The delegate representing the next handler in the pipeline.
-    // - cancellationToken: The cancellation token.
-    // RETURNS: The response object.
+
+    /// <summary>
+    /// Handles the request by checking if there is a cache policy and retrieving the response from cache if available.
+    /// </summary>
+    /// <param name="request">The request object.</param>
+    /// <param name="next">The delegate representing the next handler in the pipeline.</param>
+    /// <param name="cancellationToken">The cancellation token.</param>
+    /// <returns>The response object.</returns>
     public async Task<TResponse> Handle(TRequest request, RequestHandlerDelegate<TResponse> next, CancellationToken cancellationToken)
     {
         var cachePolicy = typeof(TRequest).GetCustomAttribute<CachingAttribute>();

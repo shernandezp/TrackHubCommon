@@ -26,9 +26,17 @@ namespace Common.Infrastructure;
 // It takes an IGraphQLClient instance as a dependency to send the GraphQL requests.
 public abstract class GraphQLService(IGraphQLClient graphQLClient)
 {
-    // This method sends a GraphQL query request and returns the deserialized response.
-    // It takes a GraphQLRequest object and a CancellationToken as parameters.
-    // It throws an exception if there is an error in the GraphQL query execution or if the data string is null or empty.
+
+    /// <summary>
+    /// This method sends a GraphQL query request and returns the deserialized response.
+    /// It throws an exception if there is an error in the GraphQL query execution or if the data string is null or empty.
+    /// </summary>
+    /// <typeparam name="T"></typeparam>
+    /// <param name="request">GraphQLRequest object</param>
+    /// <param name="token">CancellationToken</param>
+    /// <returns></returns>
+    /// <exception cref="Exception"></exception>
+    /// <exception cref="GraphQLException"></exception>
     public async Task<T> QueryAsync<T>(GraphQLRequest request, CancellationToken token)
     {
         var response = await graphQLClient.SendQueryAsync<object>(request, token)
@@ -45,9 +53,16 @@ public abstract class GraphQLService(IGraphQLClient graphQLClient)
             : ExtractFirstPropertyValue<T>(dataString);
     }
 
-    // This method sends a GraphQL mutation request and returns the deserialized response.
-    // It takes a GraphQLRequest object and a CancellationToken as parameters.
-    // It throws an exception if there is an error in the GraphQL mutation execution or if the data string is null or empty.
+    /// <summary>
+    /// This method sends a GraphQL mutation request and returns the deserialized response.
+    /// It throws an exception if there is an error in the GraphQL mutation execution or if the data string is null or empty.
+    /// </summary>
+    /// <typeparam name="T"></typeparam>
+    /// <param name="request">GraphQLRequest object</param>
+    /// <param name="token">CancellationToken</param>
+    /// <returns></returns>
+    /// <exception cref="Exception"></exception>
+    /// <exception cref="GraphQLException"></exception>
     public async Task<T> MutationAsync<T>(GraphQLRequest request, CancellationToken token)
     {
         var response = await graphQLClient.SendMutationAsync<object>(request, token)
@@ -64,10 +79,13 @@ public abstract class GraphQLService(IGraphQLClient graphQLClient)
             : ExtractFirstPropertyValue<T>(dataString);
     }
 
-    // This private method extracts the first property value from a JSON string.
-    // It takes a string parameter representing the JSON string.
-    // It returns the deserialized value of the first property.
-    // It throws an exception if the response is null or empty.
+    /// <summary>
+    /// This private method extracts the first property value from a JSON string.
+    /// </summary>
+    /// <typeparam name="T"></typeparam>
+    /// <param name="json">string parameter representing the JSON string</param>
+    /// <returns>It returns the deserialized value of the first property</returns>
+    /// <exception cref="Exception">It throws an exception if the response is null or empty</exception>
     private static T ExtractFirstPropertyValue<T>(string json)
     {
         var dataObject = JsonDocument.Parse(json);
