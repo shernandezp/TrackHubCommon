@@ -48,6 +48,7 @@ public class AnyType : ScalarType
             double d => new FloatValueNode(d),
             bool b => new BooleanValueNode(b),
             string s => new StringValueNode(s),
+            Guid g => new StringValueNode(g.ToString()),
             _ => throw new NotSupportedException()
         };
     }
@@ -60,7 +61,7 @@ public class AnyType : ScalarType
             IntValueNode intValue => intValue.ToInt32(),
             FloatValueNode floatValue => floatValue.ToDouble(),
             BooleanValueNode booleanValue => booleanValue.Value,
-            StringValueNode stringValue => stringValue.Value,
+            StringValueNode stringValue when Guid.TryParse(stringValue.Value, out var guid) => guid,
             _ => throw new NotSupportedException()
         };
     }

@@ -18,12 +18,15 @@ namespace Common.Domain.Constants;
 public abstract class Resources
 {
     public const string Accounts = nameof(Accounts);
+    public const string AccountsMaster = nameof(AccountsMaster);
     public const string Administrative = nameof(Administrative);
     public const string Credentials = nameof(Credentials);
     public const string Devices = nameof(Devices);
+    public const string DevicesMaster = nameof(DevicesMaster);
     public const string Groups = nameof(Groups);
     public const string ManageDevices = nameof(ManageDevices);
     public const string Operators = nameof(Operators);
+    public const string OperatorsMaster = nameof(OperatorsMaster);
     public const string Permissions = nameof(Permissions);
     public const string Positions = nameof(Positions);
     public const string Profile = nameof(Profile);

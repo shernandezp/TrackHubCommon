@@ -13,12 +13,16 @@
 //  limitations under the License.
 //
 
-namespace Common.Domain.Enums;
+using Common.Application.GraphQL.Inputs;
+using Common.Domain.Helpers;
 
-public enum ProtocolType
+namespace Common.Application.Extensions;
+
+public static class FiltersExtensions
 {
-    CommandTrack = 1,
-    Traccar = 2,
-    GeoTab = 3,
-    GpsGate = 4
+    public static Filters GetFilters(this FiltersInput filtersInput) 
+    {
+        var filtersDictionary = filtersInput.Filters.ToDictionary(f => f.Key, f => f.Value);
+        return new Filters(filtersDictionary);
+    }
 }
