@@ -40,7 +40,7 @@ public class LoggingBehaviour<TRequest>(ILogger<TRequest> logger, IUser user, II
         }
 
         // Log the information about the incoming request.
-        logger.LogInformation("ReThinkMarket Request: {Name} {@UserId} {@UserName} {@Request}",
+        logger.LogInformation("TrackHub Request: {Name} {@UserId} {@UserName} {@Request}",
             requestName, userId, userName, request);
         return;
     }

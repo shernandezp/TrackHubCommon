@@ -16,8 +16,4 @@
     <PackageReference Include="Microsoft.Extensions.Caching.Abstractions" />
   </ItemGroup>
 
-  <ItemGroup>
-    <Folder Include="Models\" />
-  </ItemGroup>
-
 </Project>
