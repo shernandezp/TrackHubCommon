@@ -23,6 +23,8 @@ public abstract class Resources
     public const string Credentials = nameof(Credentials);
     public const string Devices = nameof(Devices);
     public const string DevicesMaster = nameof(DevicesMaster);
+    public const string Geofences = nameof(Geofences);
+    public const string Geofencing = nameof(Geofencing);
     public const string Groups = nameof(Groups);
     public const string ManageDevices = nameof(ManageDevices);
     public const string Operators = nameof(Operators);

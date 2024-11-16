@@ -25,6 +25,7 @@ public static class TableMetadata
     public const string Credential = "credentials";
     public const string Device = "devices";
     public const string TransporterGroup = "transporter_group";
+    public const string Geofence = "geofences";
     public const string Group = "groups";
     public const string Operator = "operators";
     public const string Policy = "policies";
