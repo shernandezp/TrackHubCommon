@@ -48,9 +48,7 @@ public static class DependencyInjection
                     var certificatePassword = configuration.GetValue<string>("OpenIddict:Password");
 
                     var bytes = File.ReadAllBytes(certificatePath ?? "");
-                    var certificate = new X509Certificate2(
-                        bytes,
-                        certificatePassword);
+                    var certificate = X509CertificateLoader.LoadPkcs12(bytes, certificatePassword);
                     var signingKey = new X509SecurityKey(certificate);
                     options.TokenValidationParameters.IssuerSigningKey = signingKey;
                 }

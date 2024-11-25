@@ -15,10 +15,8 @@
 
 namespace Common.Domain.Constants;
 
-public static class SchemaMetadata
+public static class ViewMetadata
 {
-    public const string Application = "app";
-    public const string Geofencing = "geofencing";
-    public const string Public = "public";
-    public const string Security = "security";
+    public const string VwTransporterPosition = "vw_transporter_position";
+    public const string VwUsers = "vw_users";
 }

@@ -9,11 +9,9 @@
     <RootNamespace>Common.Domain</RootNamespace>
     <AssemblyName>Common.Domain</AssemblyName>
   </PropertyGroup>
-
   <ItemGroup>
     <PackageReference Include="BCrypt.Net-Next" />
     <PackageReference Include="MediatR" />
     <PackageReference Include="Microsoft.Extensions.Caching.Abstractions" />
   </ItemGroup>
-
 </Project>
