@@ -4,7 +4,7 @@
 |---------------------------|---------------------------------------------------------|-------------------------------------------------------------------------------|
 | Hot Chocolate             | Servidor GraphQL para .Net        | [Documentación Hot Chocolate](https://chillicream.com/docs/hotchocolate/v13)                           |
 | GraphQL.Client            | Cliente Http para GraphQL        | [Documentación OpenIDDict](https://openiddict.com/)                           |
-| .NET Core 8               | Plataforma de desarrollo para aplicaciones modernas     | [Documentación .NET Core 8](https://learn.microsoft.com/en-us/dotnet/core/whats-new/dotnet-8/overview) |
+| .NET Core                 | Plataforma de desarrollo para aplicaciones modernas     | [Documentación .NET Core](https://learn.microsoft.com/en-us/dotnet/core/whats-new/dotnet-9/overview) |
 | BCrypt                    | Librería para encripción de contraseñas                 | [Documentación BCrypt](https://github.com/BcryptNet/bcrypt.net)               |
 | Clean Architecture Template | Plantilla para arquitectura limpia en ASP.NET        | [GitHub - Clean Architecture Template](https://github.com/jasontaylordev/CleanArchitecture) |
 
