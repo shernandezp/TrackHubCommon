@@ -4,7 +4,7 @@
     <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
     <ImplicitUsings>enable</ImplicitUsings>
     <Nullable>enable</Nullable>
-    <Version>1.0.4</Version>
+    <Version>1.0.7</Version>
     <Authors>Sergio Hernandez</Authors>
     <RepositoryUrl>https://github.com/shernandezp/Common.git</RepositoryUrl>
     <Copyright>Copyright © 2024, Sergio Hernandez. All rights reserved.</Copyright>
