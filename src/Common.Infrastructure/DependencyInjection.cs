@@ -28,7 +28,7 @@ namespace Microsoft.Extensions.DependencyInjection;
 
 public static class DependencyInjection
 {
-    public static IServiceCollection AddInfrastructureServices(this IServiceCollection services, IConfiguration configuration, bool identityEndpoint = true)
+    public static IServiceCollection AddInfrastructureServices(this IServiceCollection services, IConfiguration configuration, bool isGraphQL = true)
     {
         services.AddScoped<ISaveChangesInterceptor, AuditableEntityInterceptor>();
         services.AddScoped<ISaveChangesInterceptor, DispatchDomainEventsInterceptor>();
@@ -44,20 +44,51 @@ public static class DependencyInjection
                 options.TokenValidationParameters.ValidIssuer = configuration.GetValue<string>("AuthorityServer:Authority");
                 if (validateSigningKey)
                 {
-                    var certificatePath = configuration.GetValue<string>("OpenIddict:Path");
-                    var certificatePassword = configuration.GetValue<string>("OpenIddict:Password");
+                    X509Certificate2? certificate = null;
+                    var loadCertFromFile = configuration.GetValue<bool>("OpenIddict:LoadCertFromFile");
+                    if (loadCertFromFile)
+                    {
+                        var certificatePath = configuration.GetValue<string>("OpenIddict:Path");
+                        var certificatePassword = configuration.GetValue<string>("OpenIddict:Password");
 
-                    var bytes = File.ReadAllBytes(certificatePath ?? "");
-                    var certificate = X509CertificateLoader.LoadPkcs12(bytes, certificatePassword);
+                        var bytes = File.ReadAllBytes(certificatePath ?? "");
+                        certificate = X509CertificateLoader.LoadPkcs12(bytes, certificatePassword);
+                    }
+                    else
+                    {
+                        var thumbprint = configuration.GetValue<string>("OpenIddict:Thumbprint");
+                        Guard.Against.Null(thumbprint, message: $"Thumbprint for OpenIddict not found");
+                        var store = new X509Store(StoreName.My, StoreLocation.CurrentUser);
+                        store.Open(OpenFlags.ReadOnly);
+                        var certificates = store.Certificates.Find(
+                            X509FindType.FindByThumbprint,
+                            thumbprint,
+                            false);
+                        certificate = certificates.Count > 0 ? certificates[0] : null;
+                    }
+                    Guard.Against.Null(certificate, message: $"Certificate for OpenIddict not found");
                     var signingKey = new X509SecurityKey(certificate);
                     options.TokenValidationParameters.IssuerSigningKey = signingKey;
                 }
             });
 
         services.AddSingleton(TimeProvider.System);
-        services.AddSingleton<IGraphQLClientFactory, GraphQLClientFactory>();
 
-        if (identityEndpoint) 
+        if (isGraphQL)
+        {
+            services.AddHttpClient(Clients.Identity,
+                client =>
+                {
+                    var url = configuration.GetValue<string>($"AppSettings:GraphQL{Clients.Identity}Service");
+                    Guard.Against.Null(url, message: $"Setting 'GraphQL{Clients.Identity}Service' not found.");
+                    client.BaseAddress = new Uri(url);
+                    client.Timeout = TimeSpan.FromSeconds(30);   //Read from config
+                })
+                .AddHeaderPropagation();
+            services.AddSingleton<IGraphQLClientFactory, GraphQLClientFactory>();
+            services.AddScoped<IIdentityService, IdentityService>();
+        }
+        else 
         {
             services.AddHttpClient(Clients.Identity,
                 client =>
@@ -65,11 +96,10 @@ public static class DependencyInjection
                     var url = configuration.GetValue<string>($"AppSettings:REST{Clients.Identity}Service");
                     Guard.Against.Null(url, message: $"Setting 'REST{Clients.Identity}Service' not found.");
                     client.BaseAddress = new Uri(url);
-                    client.Timeout = TimeSpan.FromSeconds(10);   //Read from config
+                    client.Timeout = TimeSpan.FromSeconds(30);   //Read from config
                 })
                 .AddHeaderPropagation();
-
-            services.AddScoped<IIdentityService, IdentityService>();
+            //TODO: Build REST Identity Service
         }
 
         return services;
