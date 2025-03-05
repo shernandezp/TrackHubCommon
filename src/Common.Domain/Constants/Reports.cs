@@ -15,13 +15,9 @@
 
 namespace Common.Domain.Constants;
 
-public abstract class Clients
+public abstract class Reports
 {
-    public const string Hub = nameof(Hub);
-    public const string Geofence = nameof(Geofence);
-    public const string Identity = nameof(Identity);
-    public const string Manager = nameof(Manager);
-    public const string Router = nameof(Router);
-    public const string Security = nameof(Security);
-
+    public const string LiveReport = nameof(LiveReport);
+    public const string PositionRecord = nameof(PositionRecord);
+    public const string TransportersInGeofence = nameof(TransportersInGeofence);
 }

@@ -13,15 +13,11 @@
 //  limitations under the License.
 //
 
-namespace Common.Domain.Constants;
+namespace Common.Domain.Enums;
 
-public abstract class Clients
+public enum ReportType
 {
-    public const string Hub = nameof(Hub);
-    public const string Geofence = nameof(Geofence);
-    public const string Identity = nameof(Identity);
-    public const string Manager = nameof(Manager);
-    public const string Router = nameof(Router);
-    public const string Security = nameof(Security);
-
+    Basic = 1,
+    Custom = 2,
+    External = 3,
 }

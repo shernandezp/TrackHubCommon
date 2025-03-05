@@ -30,6 +30,7 @@ public static class TableMetadata
     public const string Operator = "operators";
     public const string Policy = "policies";
     public const string Position = "position";
+    public const string Report = "reports";
     public const string Resource = "resources";
     public const string ResourceAction = "resource_action";
     public const string ResourceActionPolicy = "resource_action_policy";
