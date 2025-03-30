@@ -23,4 +23,5 @@ public class CurrentUser(IHttpContextAccessor httpContextAccessor) : IUser
 {
     public string? Id => httpContextAccessor.HttpContext?.User?.FindFirstValue(ClaimTypes.NameIdentifier);
     public string? Client => httpContextAccessor.HttpContext?.User?.FindFirstValue("client_id");
+    public string? Role => httpContextAccessor.HttpContext?.User?.FindFirstValue(ClaimTypes.Role);
 }

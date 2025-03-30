@@ -40,7 +40,7 @@ public class AuthorizationBehaviour<TRequest, TResponse>(
                 throw new UnauthorizedAccessException();
             }
 
-            if (user.Id == "service")
+            if (!string.IsNullOrEmpty(user.Role) && user.Role == "service")
             {
                 var validService = await identityService.IsValidServiceAsync(user.Client, cancellationToken);
                 //Extend the service validation to check roles and policies

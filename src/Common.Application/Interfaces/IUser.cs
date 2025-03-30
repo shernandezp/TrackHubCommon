@@ -19,4 +19,5 @@ public interface IUser
 {
     string? Id { get; }
     string? Client { get; }
+    string? Role { get; }
 }

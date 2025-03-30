@@ -38,6 +38,7 @@ public static class TableMetadata
     public const string Role = "roles";
     public const string Transporter = "transporters";
     public const string TransporterPosition = "transporter_position";
+    public const string TransporterType = "transporter_type";
     public const string User = "users";
     public const string UserGroup = "user_group";
     public const string UserSettings = "user_settings";
