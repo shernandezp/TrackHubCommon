@@ -32,7 +32,9 @@ public abstract class Resources
     public const string Permissions = nameof(Permissions);
     public const string Positions = nameof(Positions);
     public const string Profile = nameof(Profile);
+    public const string Reports = nameof(Reports);
     public const string SettingsScreen = nameof(SettingsScreen);
     public const string Transporters = nameof(Transporters);
+    public const string TransporterType = nameof(TransporterType);
     public const string Users = nameof(Users);
 }

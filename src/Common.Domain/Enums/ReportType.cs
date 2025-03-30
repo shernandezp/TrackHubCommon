@@ -13,15 +13,11 @@
 //  limitations under the License.
 //
 
-namespace Common.Domain.Constants;
+namespace Common.Domain.Enums;
 
-public abstract class Actions
+public enum ReportType
 {
-    public const string Edit = nameof(Edit);
-    public const string Execute = nameof(Execute);
-    public const string Export = nameof(Export);
-    public const string Read = nameof(Read);
-    public const string Write = nameof(Write);
-    public const string Delete = nameof(Delete);
-    public const string Custom = nameof(Custom);
+    Basic = 1,
+    Custom = 2,
+    External = 3,
 }

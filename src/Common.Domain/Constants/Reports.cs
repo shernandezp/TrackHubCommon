@@ -15,13 +15,9 @@
 
 namespace Common.Domain.Constants;
 
-public abstract class Actions
+public abstract class Reports
 {
-    public const string Edit = nameof(Edit);
-    public const string Execute = nameof(Execute);
-    public const string Export = nameof(Export);
-    public const string Read = nameof(Read);
-    public const string Write = nameof(Write);
-    public const string Delete = nameof(Delete);
-    public const string Custom = nameof(Custom);
+    public const string LiveReport = nameof(LiveReport);
+    public const string PositionRecord = nameof(PositionRecord);
+    public const string TransportersInGeofence = nameof(TransportersInGeofence);
 }

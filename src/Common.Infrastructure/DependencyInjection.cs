@@ -28,7 +28,7 @@ namespace Microsoft.Extensions.DependencyInjection;
 
 public static class DependencyInjection
 {
-    public static IServiceCollection AddInfrastructureServices(this IServiceCollection services, IConfiguration configuration, bool isGraphQL = true)
+    public static IServiceCollection AddInfrastructureServices(this IServiceCollection services, IConfiguration configuration, bool isGraphQLClient = true)
     {
         services.AddScoped<ISaveChangesInterceptor, AuditableEntityInterceptor>();
         services.AddScoped<ISaveChangesInterceptor, DispatchDomainEventsInterceptor>();
@@ -74,7 +74,7 @@ public static class DependencyInjection
 
         services.AddSingleton(TimeProvider.System);
 
-        if (isGraphQL)
+        if (isGraphQLClient)
         {
             services.AddHttpClient(Clients.Identity,
                 client =>
@@ -87,19 +87,6 @@ public static class DependencyInjection
                 .AddHeaderPropagation();
             services.AddSingleton<IGraphQLClientFactory, GraphQLClientFactory>();
             services.AddScoped<IIdentityService, IdentityService>();
-        }
-        else 
-        {
-            services.AddHttpClient(Clients.Identity,
-                client =>
-                {
-                    var url = configuration.GetValue<string>($"AppSettings:REST{Clients.Identity}Service");
-                    Guard.Against.Null(url, message: $"Setting 'REST{Clients.Identity}Service' not found.");
-                    client.BaseAddress = new Uri(url);
-                    client.Timeout = TimeSpan.FromSeconds(30);   //Read from config
-                })
-                .AddHeaderPropagation();
-            //TODO: Build REST Identity Service
         }
 
         return services;

@@ -21,7 +21,7 @@ namespace Common.Web.Infrastructure;
 public static class WebApplicationExtensions
 {
     /// <summary>
-    /// Maps an endpoint group to a route in the web application.
+    /// Maps an endpoint group to the web application.
     /// </summary>
     /// <param name="app">The WebApplication instance.</param>
     /// <param name="group">The EndpointGroupBase instance representing the endpoint group to be mapped.</param>
@@ -30,9 +30,7 @@ public static class WebApplicationExtensions
     {
         var groupName = group.GetType().Name;
 
-        return app
-            .MapGroup($"/api/{groupName}")
-            .WithGroupName(groupName)
+        return app.MapGroup($"/api/{groupName}")
             .WithTags(groupName);
     }
 
