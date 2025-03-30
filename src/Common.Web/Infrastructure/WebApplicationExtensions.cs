@@ -24,14 +24,13 @@ public static class WebApplicationExtensions
     /// Maps an endpoint group to the web application.
     /// </summary>
     /// <param name="app">The WebApplication instance.</param>
-    /// <param name="routePrefix"></param>
     /// <param name="group">The EndpointGroupBase instance representing the endpoint group to be mapped.</param>
     /// <returns>A RouteGroupBuilder instance for further configuration.</returns>
-    public static RouteGroupBuilder MapGroup(this WebApplication app, string routePrefix, EndpointGroupBase group)
+    public static RouteGroupBuilder MapGroup(this WebApplication app, EndpointGroupBase group)
     {
         var groupName = group.GetType().Name;
 
-        return app.MapGroup($"/api/{routePrefix}")
+        return app.MapGroup($"/api/{groupName}")
             .WithTags(groupName);
     }
 
