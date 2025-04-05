@@ -16,12 +16,11 @@
 using Common.Application.Attributes;
 using System.Reflection;
 using Microsoft.Extensions.Caching.Distributed;
-using Microsoft.Extensions.Logging;
 using Common.Domain.Extensions;
 
 namespace Common.Application.Behaviours;
 
-public class CachingBehaviour<TRequest, TResponse>(IDistributedCache cache, ILogger<CachingBehaviour<TRequest, TResponse>> logger)
+public class CachingBehaviour<TRequest, TResponse>(IDistributedCache cache)
     : IPipelineBehavior<TRequest, TResponse> where TRequest : IRequest<TResponse>
 {
 
@@ -38,19 +37,30 @@ public class CachingBehaviour<TRequest, TResponse>(IDistributedCache cache, ILog
         if (cachePolicy == null)
         {
             // No cache policy found, so just continue through the pipeline
-            return await next();
+            return await next(cancellationToken);
         }
-        var fullName = typeof(TRequest).FullName;
+
+        var enableCachingProperty = request.GetType().GetProperty("EnableCaching");
+        var enableCaching = true;
+        if (enableCachingProperty != null)
+        {
+            enableCaching = (bool?)enableCachingProperty.GetValue(request) ?? false;
+        }
+
+        if (!enableCaching)
+        {
+            // Caching is disabled, so just continue through the pipeline
+            return await next(cancellationToken);
+        }
+
         var cacheKey = request.GetCacheKey<TRequest, TResponse>();
         var cachedResponse = await cache.GetAsync<TResponse>(cacheKey, cancellationToken);
         if (cachedResponse != null)
         {
-            logger.LogDebug("Response retrieved {FullName} from cache. CacheKey: {cacheKey}", fullName, cacheKey);
             return cachedResponse;
         }
 
-        var response = await next();
-        logger.LogDebug("Caching response for {FullName} with cache key: {cacheKey}", fullName, cacheKey);
+        var response = await next(cancellationToken);
 
         await cache.SetAsync(cacheKey, response, new DistributedCacheEntryOptions
         {
