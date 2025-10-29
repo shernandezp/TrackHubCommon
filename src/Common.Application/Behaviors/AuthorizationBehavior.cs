@@ -17,17 +17,18 @@ using System.Reflection;
 using Common.Application.Attributes;
 using Common.Application.Exceptions;
 using Common.Application.Interfaces;
+using Common.Mediator;
 
-namespace Common.Application.Behaviours;
+namespace Common.Application.Behaviors;
 
-public class AuthorizationBehaviour<TRequest, TResponse>(
+public class AuthorizationBehavior<TRequest, TResponse>(
     IUser user,
     IIdentityService identityService) : IPipelineBehavior<TRequest, TResponse> where TRequest : notnull
 {
     // Handles the request by performing authorization checks.
     // If the user is not authorized, it throws an UnauthorizedAccessException or ForbiddenAccessException.
     // If the user is authorized or authorization is not required, it proceeds to the next handler in the pipeline.
-    public async Task<TResponse> Handle(TRequest request, RequestHandlerDelegate<TResponse> next, CancellationToken cancellationToken)
+    public async Task<TResponse> HandleAsync(TRequest request, Func<Task<TResponse>> next, CancellationToken cancellationToken)
     {
         // Get the AuthorizeAttributes applied to the request type
         var authorizeAttributes = request.GetType().GetCustomAttributes<AuthorizeAttribute>();

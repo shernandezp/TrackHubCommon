@@ -13,4 +13,7 @@
 //  limitations under the License.
 //
 
-global using FluentValidation;
+namespace Common.Mediator;
+
+public interface IRequest<TResult> { }
+public interface IRequest : IRequest<Unit> { }

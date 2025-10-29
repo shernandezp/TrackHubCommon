@@ -13,4 +13,9 @@
 //  limitations under the License.
 //
 
-global using FluentValidation;
+namespace Common.Mediator;
+
+public interface INotificationHandler<TNotification> where TNotification : INotification
+{
+    Task Handle(TNotification notification, CancellationToken cancellationToken = default);
+}

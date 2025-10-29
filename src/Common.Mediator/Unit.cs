@@ -13,4 +13,9 @@
 //  limitations under the License.
 //
 
-global using FluentValidation;
+namespace Common.Mediator;
+
+public readonly struct Unit
+{
+    public static readonly Unit Value = new();
+}

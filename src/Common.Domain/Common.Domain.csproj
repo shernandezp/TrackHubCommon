@@ -11,7 +11,9 @@
   </PropertyGroup>
   <ItemGroup>
     <PackageReference Include="BCrypt.Net-Next" />
-    <PackageReference Include="MediatR" />
     <PackageReference Include="Microsoft.Extensions.Caching.Abstractions" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\Common.Mediator\Common.Mediator.csproj" />
   </ItemGroup>
 </Project>
