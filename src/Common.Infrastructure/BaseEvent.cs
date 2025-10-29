@@ -13,7 +13,7 @@
 //  limitations under the License.
 //
 
-using MediatR;
+using Common.Mediator;
 
 namespace Common.Infrastructure;
 

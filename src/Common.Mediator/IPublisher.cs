@@ -13,4 +13,10 @@
 //  limitations under the License.
 //
 
-global using FluentValidation;
+namespace Common.Mediator;
+
+public interface IPublisher
+{
+    Task Publish<TNotification>(TNotification notification, CancellationToken cancellationToken = default)
+        where TNotification : INotification;
+}

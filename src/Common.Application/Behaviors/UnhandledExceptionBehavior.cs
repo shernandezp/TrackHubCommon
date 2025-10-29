@@ -13,15 +13,16 @@
 //  limitations under the License.
 //
 
+using Common.Mediator;
 using Microsoft.Extensions.Logging;
 
-namespace Common.Application.Behaviours;
+namespace Common.Application.Behaviors;
 
 // This class is a pipeline behavior that handles unhandled exceptions in the application.
-public class UnhandledExceptionBehaviour<TRequest, TResponse>(ILogger<TRequest> logger) : IPipelineBehavior<TRequest, TResponse> where TRequest : notnull
+public class UnhandledExceptionBehavior<TRequest, TResponse>(ILogger<TRequest> logger) : IPipelineBehavior<TRequest, TResponse> where TRequest : notnull
 {
     // This method handles the request by invoking the next behavior in the pipeline and catching any unhandled exceptions.
-    public async Task<TResponse> Handle(TRequest request, RequestHandlerDelegate<TResponse> next, CancellationToken cancellationToken)
+    public async Task<TResponse> HandleAsync(TRequest request, Func<Task<TResponse>> next, CancellationToken cancellationToken)
     {
         try
         {

@@ -13,14 +13,14 @@
 //  limitations under the License.
 //
 
-using MediatR;
+using Common.Mediator;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Diagnostics;
 
 namespace Common.Infrastructure.Interceptors;
 
 // This class represents an interceptor that dispatches domain events before saving changes to the database.
-public class DispatchDomainEventsInterceptor(IMediator mediator) : SaveChangesInterceptor
+public class DispatchDomainEventsInterceptor(IPublisher publisher) : SaveChangesInterceptor
 {
     // This method is called when saving changes to the database synchronously.
     // It dispatches domain events and then calls the base implementation of saving changes.
@@ -58,6 +58,6 @@ public class DispatchDomainEventsInterceptor(IMediator mediator) : SaveChangesIn
         entities.ToList().ForEach(e => e.ClearDomainEvents());
 
         foreach (var domainEvent in domainEvents)
-            await mediator.Publish(domainEvent);
+            await publisher.Publish(domainEvent);
     }
 }

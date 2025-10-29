@@ -17,10 +17,11 @@ using Common.Application.Attributes;
 using System.Reflection;
 using Microsoft.Extensions.Caching.Distributed;
 using Common.Domain.Extensions;
+using Common.Mediator;
 
-namespace Common.Application.Behaviours;
+namespace Common.Application.Behaviors;
 
-public class CachingBehaviour<TRequest, TResponse>(IDistributedCache cache)
+public class CachingBehavior<TRequest, TResponse>(IDistributedCache cache)
     : IPipelineBehavior<TRequest, TResponse> where TRequest : IRequest<TResponse>
 {
 
@@ -31,13 +32,13 @@ public class CachingBehaviour<TRequest, TResponse>(IDistributedCache cache)
     /// <param name="next">The delegate representing the next handler in the pipeline.</param>
     /// <param name="cancellationToken">The cancellation token.</param>
     /// <returns>The response object.</returns>
-    public async Task<TResponse> Handle(TRequest request, RequestHandlerDelegate<TResponse> next, CancellationToken cancellationToken)
+    public async Task<TResponse> HandleAsync(TRequest request, Func<Task<TResponse>> next, CancellationToken cancellationToken)
     {
         var cachePolicy = typeof(TRequest).GetCustomAttribute<CachingAttribute>();
         if (cachePolicy == null)
         {
             // No cache policy found, so just continue through the pipeline
-            return await next(cancellationToken);
+            return await next();
         }
 
         var enableCachingProperty = request.GetType().GetProperty("EnableCaching");
@@ -50,7 +51,7 @@ public class CachingBehaviour<TRequest, TResponse>(IDistributedCache cache)
         if (!enableCaching)
         {
             // Caching is disabled, so just continue through the pipeline
-            return await next(cancellationToken);
+            return await next();
         }
 
         var cacheKey = request.GetCacheKey<TRequest, TResponse>();
@@ -60,7 +61,7 @@ public class CachingBehaviour<TRequest, TResponse>(IDistributedCache cache)
             return cachedResponse;
         }
 
-        var response = await next(cancellationToken);
+        var response = await next();
 
         await cache.SetAsync(cacheKey, response, new DistributedCacheEntryOptions
         {

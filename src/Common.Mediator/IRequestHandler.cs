@@ -13,4 +13,22 @@
 //  limitations under the License.
 //
 
-global using FluentValidation;
+namespace Common.Mediator;
+
+public interface IRequestHandler<TRequest, TResult>
+    where TRequest : IRequest<TResult>
+{
+    Task<TResult> Handle(TRequest request, CancellationToken cancellationToken = default);
+}
+
+public interface IRequestHandler<TRequest> : IRequestHandler<TRequest, Unit>
+    where TRequest : IRequest
+{
+    async Task<Unit> IRequestHandler<TRequest, Unit>.Handle(TRequest request, CancellationToken cancellationToken)
+    {
+        await Handle(request, cancellationToken);
+        return Unit.Value;
+    }
+
+    new Task Handle(TRequest request, CancellationToken cancellationToken = default);
+}

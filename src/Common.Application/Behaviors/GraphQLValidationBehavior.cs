@@ -13,42 +13,40 @@
 //  limitations under the License.
 //
 
-using ValidationException = Common.Application.Exceptions.ValidationException;
+using Common.Application.Exceptions;
+using Common.Mediator;
+using HotChocolate;
 
-namespace Common.Application.Behaviours;
+namespace Common.Application.Behaviors;
 
-// Represents a pipeline behavior for request validation.
-// It performs validation on the incoming request using a collection of validators.
-public class ValidationBehaviour<TRequest, TResponse>(IEnumerable<IValidator<TRequest>> validators) : IPipelineBehavior<TRequest, TResponse>
+// The GraphQLValidationBehavior class is a pipeline behavior that performs validation on GraphQL requests.
+// It checks if there are any validators registered and if so, it executes them to validate the request.
+// If any validation failures occur, it throws a GraphQLException.
+public class GraphQLValidationBehavior<TRequest, TResponse>(IEnumerable<IValidator<TRequest>> validators) : IPipelineBehavior<TRequest, TResponse>
     where TRequest : notnull
 {
-    // Handles the request by performing validation and invoking the next behavior in the pipeline.
-    // If validation fails, a ValidationException is thrown.
-    public async Task<TResponse> Handle(TRequest request, RequestHandlerDelegate<TResponse> next, CancellationToken cancellationToken)
+    // This method handles the request by executing the validation logic.
+    // It checks if there are any validators registered and if so, it executes them to validate the request.
+    // If any validation failures occur, it throws a GraphQLException.
+    // Otherwise, it passes the request to the next handler in the pipeline.
+    public async Task<TResponse> HandleAsync(TRequest request, Func<Task<TResponse>> next, CancellationToken cancellationToken)
     {
-        // Check if there are any validators
         if (validators.Any())
         {
-            // Create a validation context for the request
             var context = new ValidationContext<TRequest>(request);
 
-            // Perform validation asynchronously using all the validators
             var validationResults = await Task.WhenAll(
                 validators.Select(v =>
                     v.ValidateAsync(context, cancellationToken)));
 
-            // Get all the validation failures
             var failures = validationResults
                 .Where(r => r.Errors.Count != 0)
                 .SelectMany(r => r.Errors)
                 .ToList();
 
-            // If there are validation failures, throw a ValidationException
             if (failures.Count != 0)
-                throw new ValidationException(failures);
+                throw new GraphQLException(failures.ConvertToIError());
         }
-
-        // Invoke the next behavior in the pipeline
         return await next();
     }
 }
