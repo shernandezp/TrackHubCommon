@@ -77,4 +77,50 @@ public static class DependencyInjection
 
         return services;
     }
+
+    public static IServiceCollection AddBasicApplicationServices(this IServiceCollection services, Assembly? assembly)
+    {
+        services.AddValidatorsFromAssembly(assembly);
+        Guard.Against.Null(assembly, message: $"Application assemblies not loaded.");
+
+        // Register Mediator as ISender and IPublisher
+        services.AddScoped<ISender, MediatorDispatcher>();
+        services.AddScoped<IPublisher, MediatorDispatcher>();
+
+        // Register pipeline behaviors as open generics
+        services.AddScoped(typeof(IPipelineBehavior<,>), typeof(UnhandledExceptionBehavior<,>));
+        services.AddScoped(typeof(IPipelineBehavior<,>), typeof(ValidationBehavior<,>));
+
+        // Register all IRequestHandler<,> and INotificationHandler<> implementations using reflection
+        if (assembly != null)
+        {
+            var types = assembly.GetTypes();
+
+            // Register IRequestHandler<,>
+            var requestHandlerInterface = typeof(IRequestHandler<,>);
+            foreach (var type in types.Where(t => !t.IsAbstract && !t.IsInterface))
+            {
+                var interfaces = type.GetInterfaces()
+                    .Where(i => i.IsGenericType && i.GetGenericTypeDefinition() == requestHandlerInterface);
+                foreach (var iface in interfaces)
+                {
+                    services.AddScoped(iface, type);
+                }
+            }
+
+            // Register INotificationHandler<>
+            var notificationHandlerInterface = typeof(INotificationHandler<>);
+            foreach (var type in types.Where(t => !t.IsAbstract && !t.IsInterface))
+            {
+                var interfaces = type.GetInterfaces()
+                    .Where(i => i.IsGenericType && i.GetGenericTypeDefinition() == notificationHandlerInterface);
+                foreach (var iface in interfaces)
+                {
+                    services.AddScoped(iface, type);
+                }
+            }
+        }
+
+        return services;
+    }
 }
