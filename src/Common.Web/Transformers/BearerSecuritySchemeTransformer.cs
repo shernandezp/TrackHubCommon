@@ -14,7 +14,7 @@
 //
 
 using Microsoft.AspNetCore.OpenApi;
-using Microsoft.OpenApi.Models;
+using Microsoft.OpenApi;
 
 namespace Common.Web.Transformers;
 
@@ -26,25 +26,43 @@ public sealed class BearerSecuritySchemeTransformer(Microsoft.AspNetCore.Authent
     {
         var authenticationSchemes = await authenticationSchemeProvider.GetAllSchemesAsync();
 
-        if (authenticationSchemes.Any(authScheme => authScheme.Name == "Bearer"))
+        if (authenticationSchemes.Any(authScheme => authScheme.Name == "Bearer" || authScheme.Name.Contains("Bearer")))
         {
             document.Components ??= new OpenApiComponents();
 
             var securitySchemeId = "Bearer";
 
-            document.Components.SecuritySchemes.Add(securitySchemeId, new OpenApiSecurityScheme
+            var securityScheme = new OpenApiSecurityScheme
             {
                 Type = SecuritySchemeType.Http,
                 Scheme = "bearer",
                 In = ParameterLocation.Header,
                 BearerFormat = "Json Web Token"
-            });
+            };
+
+            if (document.Components.SecuritySchemes != null)
+            {
+                document.Components.SecuritySchemes[securitySchemeId] = securityScheme;
+            }
 
             // Add "Bearer" scheme as a requirement for the API as a whole
-            document.SecurityRequirements.Add(new OpenApiSecurityRequirement
+            var securitySchemeReference = new OpenApiSecuritySchemeReference(securitySchemeId, document);
+
+            var requirement = new OpenApiSecurityRequirement
             {
-                [new OpenApiSecurityScheme { Reference = new OpenApiReference { Id = securitySchemeId, Type = ReferenceType.SecurityScheme } }] = Array.Empty<string>()
-            });
+                [securitySchemeReference] = []
+            };
+
+            foreach (var path in document.Paths.Values)
+            {
+                if (path.Operations != null)
+                {
+                    foreach (var operation in path.Operations.Values)
+                    {
+                        operation.Security?.Add(requirement);
+                    }
+                }
+            }
         }
     }
 }
