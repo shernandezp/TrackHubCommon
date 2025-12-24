@@ -43,8 +43,13 @@ public static class CryptographyExtensions
     // Derives a key from a passphrase and salt using the Rfc2898DeriveBytes algorithm.
     public static byte[] DeriveKey(string passphrase, byte[] salt, int keySize = 256, int iterations = 100000)
     {
-        using var deriveBytes = new Rfc2898DeriveBytes(passphrase, salt, iterations, HashAlgorithmName.SHA256);
-        return deriveBytes.GetBytes(keySize / 8);
+        return Rfc2898DeriveBytes.Pbkdf2(
+            password: passphrase,
+            salt: salt,
+            iterations: iterations,
+            hashAlgorithm: HashAlgorithmName.SHA256,
+            outputLength: keySize / 8
+        );
     }
 
     // Encrypts the given data using AES encryption algorithm.
@@ -72,8 +77,8 @@ public static class CryptographyExtensions
     public static string DecryptData(this string encryptedDataWithIvBase64, string passphrase, byte[] salt)
     {
         byte[] encryptedDataWithIv = Convert.FromBase64String(encryptedDataWithIvBase64);
-        byte[] iv = encryptedDataWithIv.Take(16).ToArray();
-        byte[] encryptedData = encryptedDataWithIv.Skip(16).ToArray();
+        byte[] iv = [.. encryptedDataWithIv.Take(16)];
+        byte[] encryptedData = [.. encryptedDataWithIv.Skip(16)];
 
         byte[] key = DeriveKey(passphrase, salt);
 
