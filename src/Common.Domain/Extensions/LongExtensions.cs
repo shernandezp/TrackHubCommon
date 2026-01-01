@@ -13,16 +13,15 @@
 //  limitations under the License.
 //
 
-namespace Common.Domain.Enums;
+namespace Common.Domain.Extensions;
 
-public enum ProtocolType
+public static class LongExtensions
 {
-    CommandTrack = 1,
-    Traccar = 2,
-    Flespi = 3,
-    GeoTab = 4,
-    GpsGate = 5,
-    Navixy = 6,
-    Samsara = 7,
-    Wialon = 8
+
+    /// <summary>
+    /// Converts Unix timestamp to DateTimeOffset.
+    /// </summary>
+    public static DateTimeOffset FromUnixTimestamp(this long value)
+        => DateTimeOffset.FromUnixTimeSeconds(value);
+
 }
