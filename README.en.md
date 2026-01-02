@@ -1,15 +1,75 @@
-﻿## Components and Resources
+﻿# TrackHub Common Library
+
+## Key Features
+
+- **Shared Clean Architecture Foundation**: Reusable application and domain layers based on Jason Taylor's template
+- **Enhanced RBAC Authorization**: Centralized role-based permission checking across all services
+- **GraphQL Validation Behaviors**: Custom validators ensuring consistent query structure and data integrity
+- **Secure Cryptography**: BCrypt for password hashing, server certificates for secrets encryption
+- **Caching Pipeline**: Request-level caching behavior to optimize performance and reduce API calls
+- **Audit Interceptors**: Automatic management of created/modified timestamps in database entities
+- **GraphQL Client Factory**: Centralized HTTP client management for inter-service communication
+- **Identity Service Integration**: Unified authentication validation across all TrackHub microservices
+
+---
+
+## Quick Start
+
+### Prerequisites
+
+- .NET 10.0 SDK
+- NuGet package manager
+
+### Installation
+
+1. **Add package reference** to your project:
+   ```xml
+   <ItemGroup>
+     <ProjectReference Include="..\TrackHubCommon\src\Common.Application\Common.Application.csproj" />
+     <ProjectReference Include="..\TrackHubCommon\src\Common.Domain\Common.Domain.csproj" />
+     <ProjectReference Include="..\TrackHubCommon\src\Common.Infrastructure\Common.Infrastructure.csproj" />
+   </ItemGroup>
+   ```
+
+2. **Register services** in your `Program.cs` or `DependencyInjection.cs`:
+   ```csharp
+   services.AddCommonApplicationServices();
+   services.AddCommonInfrastructureServices(configuration);
+   ```
+
+3. **Configure authorization** in your GraphQL setup:
+   ```csharp
+   services.AddAuthorization(options =>
+   {
+       options.AddPolicy("RequireAdminRole", policy => 
+           policy.RequireRole("Administrator"));
+   });
+   ```
+
+### Using Behaviors
+
+The library automatically registers MediatR behaviors for:
+- Authorization checking
+- Request validation
+- Caching
+- Logging
+- Exception handling
+
+---
+
+## Components and Resources
 
 | Component                | Description                                           | Documentation                                                                 |
 |--------------------------|-------------------------------------------------------|-------------------------------------------------------------------------------|
 | Hot Chocolate            | GraphQL server for .NET                               | [Hot Chocolate Documentation](https://chillicream.com/docs/hotchocolate/v13)  |
-| GraphQL.Client           | HTTP client for GraphQL                               | [OpenIDDict Documentation](https://openiddict.com/)                           |
+| GraphQL.Client           | HTTP client for GraphQL                               | [GraphQL.Client Documentation](https://github.com/graphql-dotnet/graphql-client)                           |
 | .NET Core                | Development platform for modern applications          | [.NET Core Documentation](https://learn.microsoft.com/en-us/dotnet/core/whats-new/dotnet-9/overview) |
 | BCrypt                   | Library for password encryption                       | [BCrypt Documentation](https://github.com/BcryptNet/bcrypt.net)               |
 | Clean Architecture Template | Template for clean architecture in ASP.NET         | [GitHub - Clean Architecture Template](https://github.com/jasontaylordev/CleanArchitecture) |
 
+---
 
-# Common Library for TrackHub Services
+## Overview
 
 The common library is a shared set of components designed to standardize functionality across TrackHub services, improving reusability, maintainability, and adherence to Clean Architecture principles. Based on [Jason Taylor’s Clean Architecture Template](https://github.com/jasontaylordev/CleanArchitecture), this library organizes modules into distinct layers, which promotes clear separation of responsibilities and dependency independence. This design not only supports scalability and ease of testing but also simplifies updates and maintenance across the platform.
 
