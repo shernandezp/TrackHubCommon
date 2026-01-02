@@ -1,15 +1,75 @@
-﻿## Componentes y Recursos Utilizados
+﻿# Librería Común de TrackHub
+
+## Características Principales
+
+- **Base Compartida de Arquitectura Limpia**: Capas de aplicación y dominio reutilizables basadas en la plantilla de Jason Taylor
+- **Autorización RBAC Mejorada**: Verificación centralizada de permisos basados en roles en todos los servicios
+- **Comportamientos de Validación GraphQL**: Validadores personalizados que aseguran estructura de consultas y integridad de datos consistentes
+- **Criptografía Segura**: BCrypt para hash de contraseñas, certificados de servidor para encriptación de secretos
+- **Pipeline de Caché**: Comportamiento de caché a nivel de solicitud para optimizar rendimiento y reducir llamadas a API
+- **Interceptores de Auditoría**: Gestión automática de marcas de tiempo de creación/modificación en entidades de base de datos
+- **Fábrica de Clientes GraphQL**: Gestión centralizada de clientes HTTP para comunicación entre servicios
+- **Integración de Servicio de Identidad**: Validación de autenticación unificada en todos los microservicios de TrackHub
+
+---
+
+## Inicio Rápido
+
+### Requisitos Previos
+
+- .NET 10.0 SDK
+- Gestor de paquetes NuGet
+
+### Instalación
+
+1. **Agregar referencia del paquete** a su proyecto:
+   ```xml
+   <ItemGroup>
+     <ProjectReference Include="..\TrackHubCommon\src\Common.Application\Common.Application.csproj" />
+     <ProjectReference Include="..\TrackHubCommon\src\Common.Domain\Common.Domain.csproj" />
+     <ProjectReference Include="..\TrackHubCommon\src\Common.Infrastructure\Common.Infrastructure.csproj" />
+   </ItemGroup>
+   ```
+
+2. **Registrar servicios** en su `Program.cs` o `DependencyInjection.cs`:
+   ```csharp
+   services.AddCommonApplicationServices();
+   services.AddCommonInfrastructureServices(configuration);
+   ```
+
+3. **Configurar autorización** en su configuración GraphQL:
+   ```csharp
+   services.AddAuthorization(options =>
+   {
+       options.AddPolicy("RequireAdminRole", policy => 
+           policy.RequireRole("Administrator"));
+   });
+   ```
+
+### Uso de Comportamientos
+
+La librería registra automáticamente comportamientos de MediatR para:
+- Verificación de autorización
+- Validación de solicitudes
+- Caché
+- Registro de logs
+- Manejo de excepciones
+
+---
+
+## Componentes y Recursos Utilizados
 
 | Componente                | Descripción                                             | Documentación                                                                 |
 |---------------------------|---------------------------------------------------------|-------------------------------------------------------------------------------|
 | Hot Chocolate             | Servidor GraphQL para .Net        | [Documentación Hot Chocolate](https://chillicream.com/docs/hotchocolate/v13)                           |
-| GraphQL.Client            | Cliente Http para GraphQL        | [Documentación OpenIDDict](https://openiddict.com/)                           |
+| GraphQL.Client            | Cliente Http para GraphQL        | [Documentación GraphQL.Client](https://github.com/graphql-dotnet/graphql-client)                           |
 | .NET Core                 | Plataforma de desarrollo para aplicaciones modernas     | [Documentación .NET Core](https://learn.microsoft.com/en-us/dotnet/core/whats-new/dotnet-9/overview) |
 | BCrypt                    | Librería para encripción de contraseñas                 | [Documentación BCrypt](https://github.com/BcryptNet/bcrypt.net)               |
 | Clean Architecture Template | Plantilla para arquitectura limpia en ASP.NET        | [GitHub - Clean Architecture Template](https://github.com/jasontaylordev/CleanArchitecture) |
 
+---
 
-# Librería Común para los Servicios de TrackHub
+## Descripción General
 
 La biblioteca común es un conjunto de componentes compartidos diseñados para estandarizar funcionalidades en los servicios de TrackHub, mejorando la reutilización, mantenibilidad y adherencia a los principios de Arquitectura Limpia. Basada en la [Plantilla de Arquitectura Limpia de Jason Taylor](https://github.com/jasontaylordev/CleanArchitecture), esta biblioteca organiza sus módulos en capas distintas, promoviendo una separación clara de responsabilidades y la independencia de dependencias. Este diseño no solo apoya la escalabilidad y facilidad de prueba, sino que también simplifica las actualizaciones y el mantenimiento en toda la plataforma.
 
