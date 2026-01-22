@@ -1,4 +1,4 @@
-﻿// Copyright (c) 2025 Sergio Hernandez. All rights reserved.
+﻿// Copyright (c) 2026 Sergio Hernandez. All rights reserved.
 //
 //  Licensed under the Apache License, Version 2.0 (the "License").
 //  You may not use this file except in compliance with the License.
@@ -34,6 +34,7 @@ public class CustomExceptionHandler : IExceptionHandler
                 { typeof(NotFoundException), HandleNotFoundException },
                 { typeof(UnauthorizedAccessException), HandleUnauthorizedAccessException },
                 { typeof(ForbiddenAccessException), HandleForbiddenAccessException },
+                { typeof(TooManyRequestsException), HandleTooManyRequestsException },
             };
     }
 
@@ -109,6 +110,28 @@ public class CustomExceptionHandler : IExceptionHandler
             Status = StatusCodes.Status403Forbidden,
             Title = "Forbidden",
             Type = "https://tools.ietf.org/html/rfc7231#section-6.5.3"
+        });
+    }
+
+    // HandleTooManyRequestsException method handles the TooManyRequestsException by setting the response status code to 429 (Too Many Requests)
+    // and returning a ProblemDetails object as JSON response with Retry-After header.
+    private async Task HandleTooManyRequestsException(HttpContext httpContext, Exception ex)
+    {
+        var exception = (TooManyRequestsException)ex;
+
+        httpContext.Response.StatusCode = StatusCodes.Status429TooManyRequests;
+
+        if (exception.RetryAfterSeconds.HasValue)
+        {
+            httpContext.Response.Headers.Append("Retry-After", exception.RetryAfterSeconds.Value.ToString());
+        }
+
+        await httpContext.Response.WriteAsJsonAsync(new ProblemDetails
+        {
+            Status = StatusCodes.Status429TooManyRequests,
+            Title = "Too Many Requests",
+            Type = "https://tools.ietf.org/html/rfc6585#section-4",
+            Detail = exception.Message
         });
     }
 }

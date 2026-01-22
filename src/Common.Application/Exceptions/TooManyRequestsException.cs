@@ -1,4 +1,4 @@
-﻿// Copyright (c) 2026 Sergio Hernandez. All rights reserved.
+// Copyright (c) 2026 Sergio Hernandez. All rights reserved.
 //
 //  Licensed under the Apache License, Version 2.0 (the "License").
 //  You may not use this file except in compliance with the License.
@@ -13,15 +13,13 @@
 //  limitations under the License.
 //
 
-namespace Common.Application.Interfaces;
+namespace Common.Application.Exceptions;
 
-public interface IIdentityService
+public class TooManyRequestsException : Exception
 {
-    Task<string> GetUserNameAsync(Guid userId, CancellationToken token);
+    public TooManyRequestsException() : base() { }
 
-    Task<bool> IsInRoleAsync(Guid userId, string resource, string action, CancellationToken token);
+    public TooManyRequestsException(string message) : base(message) { }
 
-    Task<bool> AuthorizeAsync(Guid userId, string resource, string action, CancellationToken token);
-
-    Task<bool> IsValidServiceAsync(string? client, CancellationToken token);
+    public int? RetryAfterSeconds { get; init; }
 }
