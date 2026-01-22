@@ -1,4 +1,4 @@
-﻿// Copyright (c) 2025 Sergio Hernandez. All rights reserved.
+﻿// Copyright (c) 2026 Sergio Hernandez. All rights reserved.
 //
 //  Licensed under the Apache License, Version 2.0 (the "License").
 //  You may not use this file except in compliance with the License.
@@ -26,6 +26,7 @@ public static class TableMetadata
     public const string Device = "devices";
     public const string TransporterGroup = "transporter_group";
     public const string Geofence = "geofences";
+    public const string GeofenceEvent = "geofenceevents";
     public const string Group = "groups";
     public const string Operator = "operators";
     public const string Policy = "policies";
@@ -39,6 +40,8 @@ public static class TableMetadata
     public const string Transporter = "transporters";
     public const string TransporterPosition = "transporter_position";
     public const string TransporterType = "transporter_type";
+    public const string Trip = "trips";
+    public const string TripDestination = "tripdestinations";
     public const string User = "users";
     public const string UserGroup = "user_group";
     public const string UserSettings = "user_settings";
