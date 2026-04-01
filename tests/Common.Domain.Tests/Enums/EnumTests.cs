@@ -42,7 +42,7 @@ public class EnumTests
 
     [Fact]
     public void ProtocolType_HasExpectedCount() =>
-        Enum.GetValues<ProtocolType>().Should().HaveCount(8);
+        Enum.GetValues<ProtocolType>().Should().HaveCount(10);
 
     [Theory]
     [InlineData(ReportType.Basic, 1)]
