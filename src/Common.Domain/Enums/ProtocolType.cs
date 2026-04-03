@@ -24,5 +24,7 @@ public enum ProtocolType
     GpsGate = 5,
     Navixy = 6,
     Samsara = 7,
-    Wialon = 8
+    Wialon = 8,
+    Protrack = 9,
+    Mettax = 10,
 }

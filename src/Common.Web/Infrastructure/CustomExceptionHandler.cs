@@ -50,7 +50,17 @@ public class CustomExceptionHandler : IExceptionHandler
             return true;
         }
 
-        return false;
+        // Fallback: return 500 for any unhandled exception type
+        httpContext.Response.StatusCode = StatusCodes.Status500InternalServerError;
+
+        await httpContext.Response.WriteAsJsonAsync(new ProblemDetails
+        {
+            Status = StatusCodes.Status500InternalServerError,
+            Title = "An error occurred while processing your request.",
+            Type = "https://tools.ietf.org/html/rfc7231#section-6.6.1"
+        }, cancellationToken);
+
+        return true;
     }
 
     // HandleValidationException method handles the ValidationException by setting the response status code to 400 (Bad Request)

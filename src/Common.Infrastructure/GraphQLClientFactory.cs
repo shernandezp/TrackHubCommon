@@ -88,14 +88,20 @@ public sealed class GraphQLClientFactory(IHttpClientFactory httpClientFactory, I
         Guard.Against.Null(clientSecret, message: $"Setting 'ClientSecret' not found.");
 
         using var httpClient = httpClientFactory.CreateClient();
+        var formData = new Dictionary<string, string>
+        {
+            { "grant_type", "client_credentials" },
+            { "client_id", clientId },
+            { "client_secret", clientSecret }
+        };
+        var scope = configuration.GetValue<string>("AuthorityServer:Scope");
+        if (!string.IsNullOrEmpty(scope))
+        {
+            formData.Add("scope", scope);
+        }
         var request = new HttpRequestMessage(HttpMethod.Post, $"{tokenUrl}/token")
         {
-            Content = new FormUrlEncodedContent(new Dictionary<string, string>
-               {
-                   { "grant_type", "client_credentials" },
-                   { "client_id", clientId },
-                   { "client_secret", clientSecret }
-               })
+            Content = new FormUrlEncodedContent(formData)
         };
 
         var response = await httpClient.SendAsync(request);

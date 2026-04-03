@@ -19,25 +19,23 @@ using Microsoft.EntityFrameworkCore.Diagnostics;
 
 namespace Common.Infrastructure.Interceptors;
 
-// This class represents an interceptor that dispatches domain events before saving changes to the database.
+// This class represents an interceptor that dispatches domain events after saving changes to the database.
 public class DispatchDomainEventsInterceptor(IPublisher publisher) : SaveChangesInterceptor
 {
-    // This method is called when saving changes to the database synchronously.
-    // It dispatches domain events and then calls the base implementation of saving changes.
-    public override InterceptionResult<int> SavingChanges(DbContextEventData eventData, InterceptionResult<int> result)
+    // Dispatches domain events after the database save completes successfully (synchronous path).
+    public override int SavedChanges(SaveChangesCompletedEventData eventData, int result)
     {
         DispatchDomainEvents(eventData.Context).GetAwaiter().GetResult();
 
-        return base.SavingChanges(eventData, result);
+        return base.SavedChanges(eventData, result);
     }
 
-    // This method is called when saving changes to the database asynchronously.
-    // It dispatches domain events and then calls the base implementation of saving changes asynchronously.
-    public override async ValueTask<InterceptionResult<int>> SavingChangesAsync(DbContextEventData eventData, InterceptionResult<int> result, CancellationToken cancellationToken = default)
+    // Dispatches domain events after the database save completes successfully (asynchronous path).
+    public override async ValueTask<int> SavedChangesAsync(SaveChangesCompletedEventData eventData, int result, CancellationToken cancellationToken = default)
     {
         await DispatchDomainEvents(eventData.Context);
 
-        return await base.SavingChangesAsync(eventData, result, cancellationToken);
+        return await base.SavedChangesAsync(eventData, result, cancellationToken);
     }
 
     // This method dispatches domain events for entities that have pending domain events.

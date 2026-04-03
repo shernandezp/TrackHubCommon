@@ -27,54 +27,23 @@ public static class DependencyInjection
         services.AddValidatorsFromAssembly(assembly);
         Guard.Against.Null(assembly, message: $"Application assemblies not loaded.");
 
-        // Register Mediator as ISender and IPublisher
-        services.AddScoped<ISender, MediatorDispatcher>();
-        services.AddScoped<IPublisher, MediatorDispatcher>();
-
-        // Register pipeline behaviors as open generics
-        services.AddScoped(typeof(IPipelineBehavior<,>), typeof(LoggingBehavior<,>));
-        services.AddScoped(typeof(IPipelineBehavior<,>), typeof(UnhandledExceptionBehavior<,>));
-        services.AddScoped(typeof(IPipelineBehavior<,>), typeof(AuthorizationBehavior<,>));
-        services.AddScoped(typeof(IPipelineBehavior<,>), typeof(CachingBehavior<,>));
-        services.AddScoped(typeof(IPipelineBehavior<,>), typeof(RateLimitingBehavior<,>));
-        if (isGraphQL)
+        services.AddMediator(cfg =>
         {
-            services.AddScoped(typeof(IPipelineBehavior<,>), typeof(GraphQLValidationBehavior<,>));
-        }
-        else
-        {
-            services.AddScoped(typeof(IPipelineBehavior<,>), typeof(ValidationBehavior<,>));
-        }
-
-        // Register all IRequestHandler<,> and INotificationHandler<> implementations using reflection
-        if (assembly != null)
-        {
-            var types = assembly.GetTypes();
-
-            // Register IRequestHandler<,>
-            var requestHandlerInterface = typeof(IRequestHandler<,>);
-            foreach (var type in types.Where(t => !t.IsAbstract && !t.IsInterface))
+            cfg.RegisterServicesFromAssembly(assembly);
+            cfg.AddBehavior(typeof(IPipelineBehavior<,>), typeof(LoggingBehavior<,>));
+            cfg.AddBehavior(typeof(IPipelineBehavior<,>), typeof(UnhandledExceptionBehavior<,>));
+            cfg.AddBehavior(typeof(IPipelineBehavior<,>), typeof(AuthorizationBehavior<,>));
+            cfg.AddBehavior(typeof(IPipelineBehavior<,>), typeof(CachingBehavior<,>));
+            cfg.AddBehavior(typeof(IPipelineBehavior<,>), typeof(RateLimitingBehavior<,>));
+            if (isGraphQL)
             {
-                var interfaces = type.GetInterfaces()
-                    .Where(i => i.IsGenericType && i.GetGenericTypeDefinition() == requestHandlerInterface);
-                foreach (var iface in interfaces)
-                {
-                    services.AddScoped(iface, type);
-                }
+                cfg.AddBehavior(typeof(IPipelineBehavior<,>), typeof(GraphQLValidationBehavior<,>));
             }
-
-            // Register INotificationHandler<>
-            var notificationHandlerInterface = typeof(INotificationHandler<>);
-            foreach (var type in types.Where(t => !t.IsAbstract && !t.IsInterface))
+            else
             {
-                var interfaces = type.GetInterfaces()
-                    .Where(i => i.IsGenericType && i.GetGenericTypeDefinition() == notificationHandlerInterface);
-                foreach (var iface in interfaces)
-                {
-                    services.AddScoped(iface, type);
-                }
+                cfg.AddBehavior(typeof(IPipelineBehavior<,>), typeof(ValidationBehavior<,>));
             }
-        }
+        });
 
         return services;
     }
@@ -84,43 +53,12 @@ public static class DependencyInjection
         services.AddValidatorsFromAssembly(assembly);
         Guard.Against.Null(assembly, message: $"Application assemblies not loaded.");
 
-        // Register Mediator as ISender and IPublisher
-        services.AddScoped<ISender, MediatorDispatcher>();
-        services.AddScoped<IPublisher, MediatorDispatcher>();
-
-        // Register pipeline behaviors as open generics
-        services.AddScoped(typeof(IPipelineBehavior<,>), typeof(UnhandledExceptionBehavior<,>));
-        services.AddScoped(typeof(IPipelineBehavior<,>), typeof(ValidationBehavior<,>));
-
-        // Register all IRequestHandler<,> and INotificationHandler<> implementations using reflection
-        if (assembly != null)
+        services.AddMediator(cfg =>
         {
-            var types = assembly.GetTypes();
-
-            // Register IRequestHandler<,>
-            var requestHandlerInterface = typeof(IRequestHandler<,>);
-            foreach (var type in types.Where(t => !t.IsAbstract && !t.IsInterface))
-            {
-                var interfaces = type.GetInterfaces()
-                    .Where(i => i.IsGenericType && i.GetGenericTypeDefinition() == requestHandlerInterface);
-                foreach (var iface in interfaces)
-                {
-                    services.AddScoped(iface, type);
-                }
-            }
-
-            // Register INotificationHandler<>
-            var notificationHandlerInterface = typeof(INotificationHandler<>);
-            foreach (var type in types.Where(t => !t.IsAbstract && !t.IsInterface))
-            {
-                var interfaces = type.GetInterfaces()
-                    .Where(i => i.IsGenericType && i.GetGenericTypeDefinition() == notificationHandlerInterface);
-                foreach (var iface in interfaces)
-                {
-                    services.AddScoped(iface, type);
-                }
-            }
-        }
+            cfg.RegisterServicesFromAssembly(assembly);
+            cfg.AddBehavior(typeof(IPipelineBehavior<,>), typeof(UnhandledExceptionBehavior<,>));
+            cfg.AddBehavior(typeof(IPipelineBehavior<,>), typeof(ValidationBehavior<,>));
+        });
 
         return services;
     }

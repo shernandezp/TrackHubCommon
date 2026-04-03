@@ -56,9 +56,9 @@ public class LoggingBehavior<TRequest, TResponse>(
             userName = await identityService.GetUserNameAsync(new Guid(userId), cancellationToken);
         }
 
-        // Log the request details along with user information
-        logger.LogInformation("TrackHub Request: {Name} {@UserId} {@UserName} {@Request}",
-            requestName, userId, userName, request);
+        // Log the request details along with user information (using {Request} to avoid serializing sensitive data)
+        logger.LogInformation("TrackHub Request: {Name} {@UserId} {@UserName} {Request}",
+            requestName, userId, userName, requestName);
 
         // Call the next behavior/handler in the pipeline
         return await next();

@@ -20,4 +20,5 @@ public abstract class Reports
     public const string LiveReport = nameof(LiveReport);
     public const string PositionRecord = nameof(PositionRecord);
     public const string TransportersInGeofence = nameof(TransportersInGeofence);
+    public const string GeofenceEvents = nameof(GeofenceEvents);
 }
