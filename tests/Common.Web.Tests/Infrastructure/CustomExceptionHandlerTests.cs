@@ -98,12 +98,17 @@ public class CustomExceptionHandlerTests
     }
 
     [Fact]
-    public async Task TryHandleAsync_UnknownException_ReturnsFalse()
+    public async Task TryHandleAsync_UnknownException_Returns500()
     {
         var context = CreateHttpContext();
         var exception = new InvalidOperationException("Unknown");
 
         var handled = await _handler.TryHandleAsync(context, exception, CancellationToken.None);
-        handled.Should().BeFalse();
+        handled.Should().BeTrue();
+        context.Response.StatusCode.Should().Be(StatusCodes.Status500InternalServerError);
+
+        var problemDetails = await ReadProblemDetails(context);
+        problemDetails!.Status.Should().Be(500);
+        problemDetails.Title.Should().Be("An error occurred while processing your request.");
     }
 }

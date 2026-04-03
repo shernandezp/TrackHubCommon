@@ -26,7 +26,7 @@ public static class ColumnMetadata
     public const int DefaultPasswordLength = 200;
     public const int DefaultAddressLength = 250;
     public const int DefaultPhoneNumberLength = 200;
-    public const int MinimumPasswordLength = 6;
+    public const int MinimumPasswordLength = 8;
 
     public const string TextField = "text";
 }

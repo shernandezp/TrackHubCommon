@@ -42,6 +42,11 @@ public static class DependencyInjection
                 options.TokenValidationParameters.ValidateIssuer = configuration.GetValue<bool>("AuthorityServer:ValidateIssuer");
                 options.TokenValidationParameters.ValidateIssuerSigningKey = validateSigningKey;
                 options.TokenValidationParameters.ValidIssuer = configuration.GetValue<string>("AuthorityServer:Authority");
+                var validAudience = configuration.GetValue<string>("AuthorityServer:ValidAudience");
+                if (!string.IsNullOrEmpty(validAudience))
+                {
+                    options.TokenValidationParameters.ValidAudiences = [validAudience];
+                }
                 if (validateSigningKey)
                 {
                     X509Certificate2? certificate = null;
@@ -82,9 +87,10 @@ public static class DependencyInjection
                     var url = configuration.GetValue<string>($"AppSettings:GraphQL{Clients.Identity}Service");
                     Guard.Against.Null(url, message: $"Setting 'GraphQL{Clients.Identity}Service' not found.");
                     client.BaseAddress = new Uri(url);
-                    client.Timeout = TimeSpan.FromSeconds(30);   //Read from config
+                    client.Timeout = TimeSpan.FromSeconds(30);
                 })
-                .AddHeaderPropagation();
+                .AddHeaderPropagation()
+                .AddStandardResilienceHandler();
             services.AddSingleton<IGraphQLClientFactory, GraphQLClientFactory>();
             services.AddScoped<IIdentityService, IdentityService>();
         }

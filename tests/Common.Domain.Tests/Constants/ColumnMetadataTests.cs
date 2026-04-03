@@ -33,7 +33,7 @@ public class ColumnMetadataTests
     public void DefaultPhoneNumberLength_Is200() => ColumnMetadata.DefaultPhoneNumberLength.Should().Be(200);
 
     [Fact]
-    public void MinimumPasswordLength_Is6() => ColumnMetadata.MinimumPasswordLength.Should().Be(6);
+    public void MinimumPasswordLength_Is8() => ColumnMetadata.MinimumPasswordLength.Should().Be(8);
 
     [Fact]
     public void TextField_IsText() => ColumnMetadata.TextField.Should().Be("text");
