@@ -7,9 +7,10 @@
 - **GraphQL Validation Behaviors**: Custom validators ensuring consistent query structure and data integrity
 - **Secure Cryptography**: BCrypt for password hashing, server certificates for secrets encryption
 - **Caching Pipeline**: Request-level caching behavior to optimize performance and reduce API calls
-- **Audit Interceptors**: Automatic management of created/modified timestamps in database entities
-- **GraphQL Client Factory**: Centralized HTTP client management for inter-service communication
+- **Audit Interceptors**: Automatic management of created/modified timestamps in database entities, with domain events dispatched after successful persistence
+- **GraphQL Client Factory**: Centralized HTTP client management for inter-service communication with Polly retry and circuit-breaker policies
 - **Identity Service Integration**: Unified authentication validation across all TrackHub microservices
+- **Production-Hardened Error Handling**: Structured exception handling with ProblemDetails responses and sanitized error logging
 
 ---
 
