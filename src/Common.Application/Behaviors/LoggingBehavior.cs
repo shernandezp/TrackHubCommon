@@ -13,6 +13,7 @@
 //  limitations under the License.
 //
 
+using System.Diagnostics;
 using Common.Application.Interfaces;
 using Common.Mediator;
 using Microsoft.Extensions.Logging;
@@ -20,8 +21,9 @@ using Microsoft.Extensions.Logging;
 namespace Common.Application.Behaviors;
 
 /// <summary>
-/// Pipeline behavior for logging request and user information.
-/// Logs the request name, user ID, user name, and the request object itself.
+/// Pipeline behavior that logs the full lifecycle of every MediatR request at Debug level.
+/// Captures request start, completion (with elapsed time), and failure — so all transactions
+/// are visible when Debug logging is enabled, without requiring try-catch in business logic.
 /// </summary>
 /// <typeparam name="TRequest">The type of the request.</typeparam>
 /// <typeparam name="TResponse">The type of the response.</typeparam>
@@ -32,35 +34,42 @@ public class LoggingBehavior<TRequest, TResponse>(
 ) : IPipelineBehavior<TRequest, TResponse>
     where TRequest : notnull
 {
-    /// <summary>
-    /// Handles the logging of the request and user information before passing control to the next behavior/handler in the pipeline.
-    /// </summary>
-    /// <param name="request">The request object.</param>
-    /// <param name="next">The next delegate in the pipeline.</param>
-    /// <param name="cancellationToken">A cancellation token.</param>
-    /// <returns>The response from the next handler in the pipeline.</returns>
     public async Task<TResponse> HandleAsync(
         TRequest request,
         Func<Task<TResponse>> next,
         CancellationToken cancellationToken = default)
     {
-        // Get the name of the request type
         var requestName = typeof(TRequest).Name;
-        // Get the user ID from the current user context
         var userId = user.Id ?? string.Empty;
         string? userName = string.Empty;
 
-        // If a user ID is present, retrieve the user name from the identity service
         if (!string.IsNullOrEmpty(userId))
         {
             userName = await identityService.GetUserNameAsync(new Guid(userId), cancellationToken);
         }
 
-        // Log the request details along with user information (using {Request} to avoid serializing sensitive data)
-        logger.LogInformation("TrackHub Request: {Name} {@UserId} {@UserName} {Request}",
-            requestName, userId, userName, requestName);
+        logger.LogDebug("TrackHub Request Starting: {Name} by {UserId} ({UserName})",
+            requestName, userId, userName);
 
-        // Call the next behavior/handler in the pipeline
-        return await next();
+        var stopwatch = Stopwatch.StartNew();
+        try
+        {
+            var response = await next();
+            stopwatch.Stop();
+
+            logger.LogDebug("TrackHub Request Completed: {Name} by {UserId} in {ElapsedMilliseconds}ms",
+                requestName, userId, stopwatch.ElapsedMilliseconds);
+
+            return response;
+        }
+        catch (Exception ex)
+        {
+            stopwatch.Stop();
+
+            logger.LogDebug("TrackHub Request Failed: {Name} by {UserId} in {ElapsedMilliseconds}ms - {ExceptionType}: {ExceptionMessage}",
+                requestName, userId, stopwatch.ElapsedMilliseconds, ex.GetType().Name, ex.Message);
+
+            throw;
+        }
     }
 }

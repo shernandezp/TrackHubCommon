@@ -7,9 +7,10 @@
 - **Comportamientos de Validación GraphQL**: Validadores personalizados que aseguran estructura de consultas y integridad de datos consistentes
 - **Criptografía Segura**: BCrypt para hash de contraseñas, certificados de servidor para encriptación de secretos
 - **Pipeline de Caché**: Comportamiento de caché a nivel de solicitud para optimizar rendimiento y reducir llamadas a API
-- **Interceptores de Auditoría**: Gestión automática de marcas de tiempo de creación/modificación en entidades de base de datos
-- **Fábrica de Clientes GraphQL**: Gestión centralizada de clientes HTTP para comunicación entre servicios
+- **Interceptores de Auditoría**: Gestión automática de marcas de tiempo de creación/modificación en entidades de base de datos, con eventos de dominio despachados después de persistencia exitosa
+- **Fábrica de Clientes GraphQL**: Gestión centralizada de clientes HTTP para comunicación entre servicios con políticas de reintento y circuit-breaker de Polly
 - **Integración de Servicio de Identidad**: Validación de autenticación unificada en todos los microservicios de TrackHub
+- **Manejo de Errores Robusto**: Manejo estructurado de excepciones con respuestas ProblemDetails y registro de errores sanitizado
 
 ---
 
