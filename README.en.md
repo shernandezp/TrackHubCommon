@@ -1,8 +1,8 @@
-﻿# TrackHub Common Library
+# TrackHub Common Library
 
 ## Key Features
 
-- **Shared Clean Architecture Foundation**: Reusable application and domain layers based on Jason Taylor's template
+- **Shared Clean Architecture Layers**: Reusable application and domain layers based on Jason Taylor's template
 - **Enhanced RBAC Authorization**: Centralized role-based permission checking across all services
 - **GraphQL Validation Behaviors**: Custom validators ensuring consistent query structure and data integrity
 - **Secure Cryptography**: BCrypt for password hashing, server certificates for secrets encryption
@@ -13,6 +13,8 @@
 - **Production-Hardened Error Handling**: Structured exception handling with ProblemDetails responses and sanitized error logging
 
 ---
+
+
 
 ## Quick Start
 
@@ -129,3 +131,5 @@ This library is particularly valuable in scenarios where reusable components and
 ## License
 
 This project is licensed under the Apache 2.0 License. See the [LICENSE file](https://www.apache.org/licenses/LICENSE-2.0) for more information.
+
+

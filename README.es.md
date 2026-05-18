@@ -1,4 +1,4 @@
-﻿# Librería Común de TrackHub
+# Librería Común de TrackHub
 
 ## Características Principales
 
@@ -129,3 +129,4 @@ Esta biblioteca es particularmente valiosa en escenarios donde los componentes r
 ## Licencia
 
 Este proyecto está bajo la Licencia Apache 2.0. Consulta el archivo [LICENSE](https://www.apache.org/licenses/LICENSE-2.0) para más información.
+

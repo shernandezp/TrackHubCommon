@@ -57,23 +57,37 @@ public class ExceptionConverterTests
     }
 
     [Fact]
-    public void ExceptionPath_WithString_SetsPath()
+    public void ConvertToIError_GraphQLError_WithPathAndLocations_PropagatesToError()
     {
-        var path = new ExceptionConverter.ExceptionPath("TestProperty");
-        path.Should().NotBeNull();
+        var error = new GraphQLError
+        {
+            Message = "boom",
+            Path = new ErrorPath(new object[] { "user", "name" }),
+            Locations =
+            [
+                new GraphQLLocation { Line = 3, Column = 7 }
+            ]
+        };
+
+        var result = error.ConvertToIError();
+
+        result.Message.Should().Be("boom");
+        result.Path.Should().NotBeNull();
+        result.Path!.ToList().Should().ContainInOrder("user", "name");
+        result.Locations.Should().NotBeNull();
+        result.Locations!.Should().ContainSingle()
+            .Which.Should().Match<HotChocolate.Location>(l => l.Line == 3 && l.Column == 7);
     }
 
     [Fact]
-    public void ExceptionPath_WithEmptyString_DoesNotThrow()
+    public void ConvertToIError_GraphQLError_WithoutOptionalFields_HasNoPathOrLocations()
     {
-        var path = new ExceptionConverter.ExceptionPath("");
-        path.Should().NotBeNull();
-    }
+        var error = new GraphQLError { Message = "naked" };
 
-    [Fact]
-    public void ExceptionPath_WithNullErrorPath_DoesNotThrow()
-    {
-        var path = new ExceptionConverter.ExceptionPath((ErrorPath?)null);
-        path.Should().NotBeNull();
+        var result = error.ConvertToIError();
+
+        result.Message.Should().Be("naked");
+        result.Path.Should().BeNull();
+        (result.Locations is null || result.Locations.Count == 0).Should().BeTrue();
     }
 }

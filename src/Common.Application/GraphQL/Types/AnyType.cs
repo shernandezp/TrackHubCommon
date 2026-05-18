@@ -1,4 +1,4 @@
-﻿// Copyright (c) 2026 Sergio Hernandez. All rights reserved.
+// Copyright (c) 2026 Sergio Hernandez. All rights reserved.
 //
 //  Licensed under the Apache License, Version 2.0 (the "License").
 //  You may not use this file except in compliance with the License.
@@ -13,20 +13,25 @@
 //  limitations under the License.
 //
 
+using System.Text.Json;
+using HotChocolate.Features;
 using HotChocolate.Language;
+using HotChocolate.Text.Json;
 using HotChocolate.Types;
 
 namespace Common.Application.GraphQL.Types;
 
-public class AnyType : ScalarType
+public class AnyType : ScalarType<object>
 {
     public AnyType() : base("Any") { }
 
-    public override Type RuntimeType => typeof(object);
+    public override ScalarSerializationType SerializationType
+        => ScalarSerializationType.Any;
 
-    public override bool IsInstanceOfType(IValueNode valueSyntax)
+    public override bool IsValueCompatible(IValueNode valueLiteral)
     {
-        return valueSyntax switch
+        ArgumentNullException.ThrowIfNull(valueLiteral);
+        return valueLiteral switch
         {
             NullValueNode => true,
             IntValueNode => true,
@@ -37,9 +42,12 @@ public class AnyType : ScalarType
         };
     }
 
-    public override IValueNode ParseValue(object? value)
+    public override IValueNode ValueToLiteral(object runtimeValue)
+        => runtimeValue is null ? NullValueNode.Default : base.ValueToLiteral(runtimeValue);
+
+    protected override IValueNode OnValueToLiteral(object runtimeValue)
     {
-        return value switch
+        return runtimeValue switch
         {
             null => NullValueNode.Default,
             int i => new IntValueNode(i),
@@ -49,34 +57,67 @@ public class AnyType : ScalarType
             bool b => new BooleanValueNode(b),
             string s => new StringValueNode(s),
             Guid g => new StringValueNode(g.ToString()),
-            _ => throw new NotSupportedException()
+            _ => throw CreateValueToLiteralError(runtimeValue)
         };
     }
 
-    public override object? ParseLiteral(IValueNode valueSyntax)
+    public override object CoerceInputLiteral(IValueNode valueLiteral)
     {
-        return valueSyntax switch
+        ArgumentNullException.ThrowIfNull(valueLiteral);
+        return valueLiteral switch
         {
-            NullValueNode => null,
+            NullValueNode => null!,
             IntValueNode intValue => intValue.ToInt32(),
             FloatValueNode floatValue => floatValue.ToDouble(),
             BooleanValueNode booleanValue => booleanValue.Value,
             StringValueNode stringValue when Guid.TryParse(stringValue.Value, out var guid) => guid,
+            StringValueNode stringValue => stringValue.Value,
             _ => throw new NotSupportedException()
         };
     }
 
-    public override IValueNode ParseResult(object? resultValue) => ParseValue(resultValue);
-
-    public override bool TrySerialize(object? runtimeValue, out object? resultValue)
+    public override object CoerceInputValue(JsonElement inputValue, IFeatureProvider context)
     {
-        resultValue = runtimeValue;
-        return true;
+        return inputValue.ValueKind switch
+        {
+            JsonValueKind.Null or JsonValueKind.Undefined => null!,
+            JsonValueKind.True => true,
+            JsonValueKind.False => false,
+            JsonValueKind.String when Guid.TryParse(inputValue.GetString(), out var guid) => guid,
+            JsonValueKind.String => inputValue.GetString()!,
+            JsonValueKind.Number when inputValue.TryGetInt64(out var l) => l,
+            JsonValueKind.Number => inputValue.GetDouble(),
+            _ => throw new NotSupportedException()
+        };
     }
 
-    public override bool TryDeserialize(object? resultValue, out object? runtimeValue)
+    protected override void OnCoerceOutputValue(object runtimeValue, ResultElement resultValue)
     {
-        runtimeValue = resultValue;
-        return true;
+        switch (runtimeValue)
+        {
+            case bool b:
+                resultValue.SetBooleanValue(b);
+                break;
+            case int i:
+                resultValue.SetNumberValue(i);
+                break;
+            case long l:
+                resultValue.SetNumberValue(l);
+                break;
+            case float f:
+                resultValue.SetNumberValue(f);
+                break;
+            case double d:
+                resultValue.SetNumberValue(d);
+                break;
+            case string s:
+                resultValue.SetStringValue(s);
+                break;
+            case Guid g:
+                resultValue.SetStringValue(g.ToString());
+                break;
+            default:
+                throw CreateCoerceOutputValueError(runtimeValue);
+        }
     }
 }

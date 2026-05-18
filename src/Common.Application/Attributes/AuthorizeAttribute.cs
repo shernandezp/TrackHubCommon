@@ -28,4 +28,5 @@ public class AuthorizeAttribute : Attribute
 
     public string Resource { get; set; } = string.Empty;
     public string Action { get; set; } = string.Empty;
+    public string PrincipalTypes { get; set; } = "User,ServiceClient";
 }

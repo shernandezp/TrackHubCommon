@@ -61,6 +61,24 @@ public class CurrentUserTests
     }
 
     [Fact]
+    public void AccountId_ReturnsAccountIdClaim()
+    {
+        var accountId = Guid.NewGuid();
+        var httpContext = new DefaultHttpContext
+        {
+            User = new ClaimsPrincipal(new ClaimsIdentity(new[]
+            {
+                new Claim("account_id", accountId.ToString())
+            }))
+        };
+        var accessor = new Mock<IHttpContextAccessor>();
+        accessor.Setup(a => a.HttpContext).Returns(httpContext);
+
+        var currentUser = new CurrentUser(accessor.Object);
+        currentUser.AccountId.Should().Be(accountId);
+    }
+
+    [Fact]
     public void NullHttpContext_ReturnsNull()
     {
         var accessor = new Mock<IHttpContextAccessor>();

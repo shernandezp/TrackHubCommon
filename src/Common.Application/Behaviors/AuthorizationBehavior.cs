@@ -41,17 +41,24 @@ public class AuthorizationBehavior<TRequest, TResponse>(
                 throw new UnauthorizedAccessException();
             }
 
-            if (!string.IsNullOrEmpty(user.Role) && user.Role == "service")
+            var principalType = ResolveEffectivePrincipalType();
+            foreach (var attribute in authorizeAttributes)
+                if (!IsPrincipalAllowed(principalType, attribute.PrincipalTypes))
+                    throw new ForbiddenAccessException();
+
+            if (principalType == PrincipalType.ServiceClient)
             {
-                var validService = await identityService.IsValidServiceAsync(user.Client, cancellationToken);
-                //Extend the service validation to check roles and policies
-                if (!validService)
-                {
-                    throw new UnauthorizedAccessException();
-                }
+                foreach (var attribute in authorizeAttributes)
+                    if (!await identityService.IsValidServiceAsync(user.Client ?? user.SubjectId, attribute.Resource, attribute.Action, user.AccountId, user.Scopes, user.Audiences, cancellationToken))
+                        throw new ForbiddenAccessException();
             }
             else
             {
+                if (!Guid.TryParse(user.Id, out var userId))
+                {
+                    throw new UnauthorizedAccessException();
+                }
+
                 // Iterate through each AuthorizeAttribute
                 foreach (var attribute in authorizeAttributes)
                 {
@@ -59,10 +66,10 @@ public class AuthorizationBehavior<TRequest, TResponse>(
                     var action = attribute.Action;
 
                     // Check if the user is in the required role
-                    var roleAuthorized = await identityService.IsInRoleAsync(new Guid(user.Id), resource, action, cancellationToken);
+                    var roleAuthorized = await identityService.IsInRoleAsync(userId, resource, action, cancellationToken);
 
                     // Check if the user is authorized based on policies
-                    var policyAuthorized = await identityService.AuthorizeAsync(new Guid(user.Id), resource, action, cancellationToken);
+                    var policyAuthorized = await identityService.AuthorizeAsync(userId, resource, action, cancellationToken);
 
                     // If the user is not authorized, throw ForbiddenAccessException
                     if (!roleAuthorized || !policyAuthorized)
@@ -75,6 +82,33 @@ public class AuthorizationBehavior<TRequest, TResponse>(
 
         // User is authorized / authorization not required, proceed to the next handler
         return await next();
+    }
+
+    private PrincipalType ResolveEffectivePrincipalType()
+    {
+        if (user.PrincipalType != PrincipalType.Unknown)
+        {
+            return user.PrincipalType;
+        }
+
+        if (!string.IsNullOrEmpty(user.Role) && user.Role == "service")
+        {
+            return PrincipalType.ServiceClient;
+        }
+
+        return user.Id == null ? PrincipalType.Unknown : PrincipalType.User;
+    }
+
+    private static bool IsPrincipalAllowed(PrincipalType principalType, string principalTypes)
+    {
+        if (string.IsNullOrWhiteSpace(principalTypes))
+        {
+            return true;
+        }
+
+        return principalTypes
+            .Split(',', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries)
+            .Any(value => Enum.TryParse<PrincipalType>(value, ignoreCase: true, out var allowed) && allowed == principalType);
     }
 
 }

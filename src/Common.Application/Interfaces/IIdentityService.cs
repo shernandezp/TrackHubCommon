@@ -24,4 +24,8 @@ public interface IIdentityService
     Task<bool> AuthorizeAsync(Guid userId, string resource, string action, CancellationToken token);
 
     Task<bool> IsValidServiceAsync(string? client, CancellationToken token);
+
+    Task<bool> IsValidServiceAsync(string? client, string resource, string action, CancellationToken token);
+
+    Task<bool> IsValidServiceAsync(string? client, string resource, string action, Guid? accountId, IReadOnlyCollection<string> scopes, IReadOnlyCollection<string> audiences, CancellationToken token);
 }
