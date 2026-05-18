@@ -11,12 +11,6 @@ We believe in the strength of community collaboration to create effective and ac
 ![Image](https://github.com/shernandezp/TrackHub.AuthorityServer/blob/master/src/Web/wwwroot/images/logo.png)
 
 
-## Platform Foundation Enhancements
-
-- Provides the shared `ICurrentPrincipal` contract and `PrincipalType` model used by all services.
-- Extends authorization behavior so user and service-client requests are evaluated consistently through resource/action policies.
-- Centralizes GraphQL client creation and web identity helpers used by the foundation APIs.
-
 ---
 
 ## Project Repositories
@@ -31,6 +25,7 @@ We believe in the strength of community collaboration to create effective and ac
 | **Geofencing API**          | [https://github.com/shernandezp/TrackHub.Geofencing](https://github.com/shernandezp/TrackHub.Geofencing)    |
 | **TrackHub Web**            | [https://github.com/shernandezp/TrackHub](https://github.com/shernandezp/TrackHub)          |
 | **TrackHub Mobile**         | [https://github.com/shernandezp/TrackHubMobile](https://github.com/shernandezp/TrackHubMobile)          |
+
 
 
 

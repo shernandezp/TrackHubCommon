@@ -2,7 +2,7 @@
 
 ## Key Features
 
-- **Shared Clean Architecture Foundation**: Reusable application and domain layers based on Jason Taylor's template
+- **Shared Clean Architecture Layers**: Reusable application and domain layers based on Jason Taylor's template
 - **Enhanced RBAC Authorization**: Centralized role-based permission checking across all services
 - **GraphQL Validation Behaviors**: Custom validators ensuring consistent query structure and data integrity
 - **Secure Cryptography**: BCrypt for password hashing, server certificates for secrets encryption
@@ -15,13 +15,6 @@
 ---
 
 
-## Platform Foundation Enhancements
-
-- Provides the shared `ICurrentPrincipal` contract and `PrincipalType` model used by all services.
-- Extends authorization behavior so user and service-client requests are evaluated consistently through resource/action policies.
-- Centralizes GraphQL client creation and web identity helpers used by the foundation APIs.
-
----
 
 ## Quick Start
 
@@ -138,4 +131,5 @@ This library is particularly valuable in scenarios where reusable components and
 ## License
 
 This project is licensed under the Apache 2.0 License. See the [LICENSE file](https://www.apache.org/licenses/LICENSE-2.0) for more information.
+
 

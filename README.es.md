@@ -14,15 +14,6 @@
 
 ---
 
-
-## Mejoras de Plataforma Base
-
-- Proporciona el contrato compartido `ICurrentPrincipal` y el modelo `PrincipalType` usado por todos los servicios.
-- Extiende el comportamiento de autorizacion para evaluar de forma consistente solicitudes de usuario y cliente de servicio mediante politicas recurso/accion.
-- Centraliza la creacion de clientes GraphQL y helpers de identidad web usados por las APIs base.
-
----
-
 ## Inicio Rápido
 
 ### Requisitos Previos
