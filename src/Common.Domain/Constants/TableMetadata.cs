@@ -18,12 +18,21 @@ namespace Common.Domain.Constants;
 public static class TableMetadata
 {
     public const string Account = "accounts";
+    public const string AccountFeature = "account_features";
     public const string AccountSettings = "account_settings";
+    public const string AccountSupportGrant = "account_support_grants";
     public const string Action = "actions";
+    public const string AlertEvent = "alert_events";
+    public const string AuditEvent = "audit_events";
+    public const string BackgroundJobRun = "background_job_runs";
     public const string Category = "categories";
     public const string Client = "clients";
     public const string Credential = "credentials";
     public const string Device = "devices";
+    public const string Document = "documents";
+    public const string Driver = "drivers";
+    public const string DriverCredential = "driver_credentials";
+    public const string DriverDeviceRegistration = "driver_device_registrations";
     public const string TransporterGroup = "transporter_group";
     public const string Geofence = "geofences";
     public const string GeofenceEvent = "geofenceevents";
@@ -31,12 +40,16 @@ public static class TableMetadata
     public const string Operator = "operators";
     public const string Policy = "policies";
     public const string Position = "position";
+    public const string PublicLinkGrant = "public_link_grants";
     public const string Report = "reports";
     public const string Resource = "resources";
     public const string ResourceAction = "resource_action";
     public const string ResourceActionPolicy = "resource_action_policy";
     public const string ResourceActionRole = "resource_action_role";
     public const string Role = "roles";
+    public const string NotificationRule = "notification_rules";
+    public const string NotificationDelivery = "notification_deliveries";
+    public const string ServiceClientPermission = "service_client_permissions";
     public const string Transporter = "transporters";
     public const string TransporterPosition = "transporter_position";
     public const string TransporterType = "transporter_type";

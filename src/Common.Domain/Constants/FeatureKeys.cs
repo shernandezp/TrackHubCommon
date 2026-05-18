@@ -1,4 +1,4 @@
-﻿// Copyright (c) 2026 Sergio Hernandez. All rights reserved.
+// Copyright (c) 2026 Sergio Hernandez. All rights reserved.
 //
 //  Licensed under the Apache License, Version 2.0 (the "License").
 //  You may not use this file except in compliance with the License.
@@ -13,10 +13,15 @@
 //  limitations under the License.
 //
 
-namespace Common.Application.Interfaces;
+namespace Common.Domain.Constants;
 
-public interface IUser : ICurrentPrincipal
+public static class FeatureKeys
 {
-    string? Id { get; }
-    string? Client { get; }
+    public const string Geofencing = "geofencing";
+    public const string TripManagement = "trip-management";
+    public const string DriverMobile = "driver-mobile";
+    public const string Reports = "reports";
+    public const string PublicLinks = "public-links";
+    public const string Documents = "documents";
+    public const string Notifications = "notifications";
 }

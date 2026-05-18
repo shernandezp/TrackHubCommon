@@ -1,4 +1,4 @@
-﻿# Librería Común de TrackHub
+# Librería Común de TrackHub
 
 ## Características Principales
 
@@ -11,6 +11,15 @@
 - **Fábrica de Clientes GraphQL**: Gestión centralizada de clientes HTTP para comunicación entre servicios con políticas de reintento y circuit-breaker de Polly
 - **Integración de Servicio de Identidad**: Validación de autenticación unificada en todos los microservicios de TrackHub
 - **Manejo de Errores Robusto**: Manejo estructurado de excepciones con respuestas ProblemDetails y registro de errores sanitizado
+
+---
+
+
+## Mejoras de Plataforma Base
+
+- Proporciona el contrato compartido `ICurrentPrincipal` y el modelo `PrincipalType` usado por todos los servicios.
+- Extiende el comportamiento de autorizacion para evaluar de forma consistente solicitudes de usuario y cliente de servicio mediante politicas recurso/accion.
+- Centraliza la creacion de clientes GraphQL y helpers de identidad web usados por las APIs base.
 
 ---
 
@@ -129,3 +138,4 @@ Esta biblioteca es particularmente valiosa en escenarios donde los componentes r
 ## Licencia
 
 Este proyecto está bajo la Licencia Apache 2.0. Consulta el archivo [LICENSE](https://www.apache.org/licenses/LICENSE-2.0) para más información.
+

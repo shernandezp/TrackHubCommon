@@ -42,7 +42,7 @@ public class AuthorizationBehaviorTests
         _userMock.Setup(u => u.Id).Returns(userId);
         _userMock.Setup(u => u.Role).Returns("service");
         _userMock.Setup(u => u.Client).Returns("TestClient");
-        _identityServiceMock.Setup(s => s.IsValidServiceAsync("TestClient", It.IsAny<CancellationToken>())).ReturnsAsync(true);
+        _identityServiceMock.Setup(s => s.IsValidServiceAsync("TestClient", "Users", "Read", It.IsAny<Guid?>(), It.IsAny<IReadOnlyCollection<string>>(), It.IsAny<IReadOnlyCollection<string>>(), It.IsAny<CancellationToken>())).ReturnsAsync(true);
 
         var behavior = new AuthorizationBehavior<AuthorizedRequest, string>(_userMock.Object, _identityServiceMock.Object);
         var result = await behavior.HandleAsync(new AuthorizedRequest(), () => Task.FromResult("OK"), CancellationToken.None);
@@ -50,17 +50,17 @@ public class AuthorizationBehaviorTests
     }
 
     [Fact]
-    public async Task Handle_ServiceRole_InvalidService_ThrowsUnauthorized()
+    public async Task Handle_ServiceRole_InvalidServicePermission_ThrowsForbidden()
     {
         var userId = Guid.NewGuid().ToString();
         _userMock.Setup(u => u.Id).Returns(userId);
         _userMock.Setup(u => u.Role).Returns("service");
         _userMock.Setup(u => u.Client).Returns("BadClient");
-        _identityServiceMock.Setup(s => s.IsValidServiceAsync("BadClient", It.IsAny<CancellationToken>())).ReturnsAsync(false);
+        _identityServiceMock.Setup(s => s.IsValidServiceAsync("BadClient", "Users", "Read", It.IsAny<Guid?>(), It.IsAny<IReadOnlyCollection<string>>(), It.IsAny<IReadOnlyCollection<string>>(), It.IsAny<CancellationToken>())).ReturnsAsync(false);
 
         var behavior = new AuthorizationBehavior<AuthorizedRequest, string>(_userMock.Object, _identityServiceMock.Object);
         var act = () => behavior.HandleAsync(new AuthorizedRequest(), () => Task.FromResult("OK"), CancellationToken.None);
-        await act.Should().ThrowAsync<UnauthorizedAccessException>();
+        await act.Should().ThrowAsync<ForbiddenAccessException>();
     }
 
     [Fact]

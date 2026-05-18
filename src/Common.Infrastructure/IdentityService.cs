@@ -103,4 +103,30 @@ public sealed class IdentityService(IGraphQLClientFactory graphQLClient)
         };
         return QueryAsync<bool>(request, token);
     }
+
+    public Task<bool> IsValidServiceAsync(string? client, string resource, string action, CancellationToken token)
+    {
+        var request = new GraphQLRequest
+        {
+            Query = @"
+                    query($action: String!, $client: String!, $resource: String!) {
+                        isValidServiceForResource(query: { action: $action, client: $client, resource: $resource })
+                    }",
+            Variables = new { client, resource, action }
+        };
+        return QueryAsync<bool>(request, token);
+    }
+
+    public Task<bool> IsValidServiceAsync(string? client, string resource, string action, Guid? accountId, IReadOnlyCollection<string> scopes, IReadOnlyCollection<string> audiences, CancellationToken token)
+    {
+        var request = new GraphQLRequest
+        {
+            Query = @"
+                    query($accountId: UUID, $action: String!, $audiences: [String!], $client: String!, $resource: String!, $scopes: [String!]) {
+                        isValidServiceForResource(query: { accountId: $accountId, action: $action, audiences: $audiences, client: $client, resource: $resource, scopes: $scopes })
+                    }",
+            Variables = new { client, resource, action, accountId, scopes, audiences }
+        };
+        return QueryAsync<bool>(request, token);
+    }
 }

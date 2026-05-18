@@ -1,4 +1,4 @@
-﻿# TrackHub Common Library
+# TrackHub Common Library
 
 ## Key Features
 
@@ -11,6 +11,15 @@
 - **GraphQL Client Factory**: Centralized HTTP client management for inter-service communication with Polly retry and circuit-breaker policies
 - **Identity Service Integration**: Unified authentication validation across all TrackHub microservices
 - **Production-Hardened Error Handling**: Structured exception handling with ProblemDetails responses and sanitized error logging
+
+---
+
+
+## Platform Foundation Enhancements
+
+- Provides the shared `ICurrentPrincipal` contract and `PrincipalType` model used by all services.
+- Extends authorization behavior so user and service-client requests are evaluated consistently through resource/action policies.
+- Centralizes GraphQL client creation and web identity helpers used by the foundation APIs.
 
 ---
 
@@ -129,3 +138,4 @@ This library is particularly valuable in scenarios where reusable components and
 ## License
 
 This project is licensed under the Apache 2.0 License. See the [LICENSE file](https://www.apache.org/licenses/LICENSE-2.0) for more information.
+

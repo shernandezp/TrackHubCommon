@@ -25,6 +25,7 @@ public static class DependencyInjection
     {
         services.AddDatabaseDeveloperPageExceptionFilter();
         services.AddScoped<IUser, CurrentUser>();
+        services.AddScoped<ICurrentPrincipal>(sp => sp.GetRequiredService<IUser>());
         services.AddHttpContextAccessor();
         services.AddExceptionHandler<CustomExceptionHandler>();
 
@@ -40,6 +41,7 @@ public static class DependencyInjection
     public static IServiceCollection AddWorkerServices(this IServiceCollection services)
     {
         services.AddScoped<IUser, CurrentUser>();
+        services.AddScoped<ICurrentPrincipal>(sp => sp.GetRequiredService<IUser>());
         services.AddHttpContextAccessor();
         services.AddExceptionHandler<CustomExceptionHandler>();
 

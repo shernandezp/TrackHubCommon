@@ -33,54 +33,34 @@ public static class ExceptionConverter
     // Converts a GraphQLError object to an IError object
     public static IError ConvertToIError(this GraphQLError graphQLError)
     {
-        IReadOnlyList<Location> locations = [];
-        if (graphQLError.Locations != null)
+        var builder = ErrorBuilder.New()
+            .SetMessage(graphQLError.Message);
+
+        if (graphQLError.Path is { } errorPath)
         {
-            locations = graphQLError.Locations
-            .Select(location => new Location((int)location.Line, (int)location.Column))
-            .ToList();
+            var segments = errorPath
+                .Select(segment => (object)(segment?.ToString() ?? string.Empty))
+                .ToList();
+            if (segments.Count > 0)
+            {
+                builder.SetPath(HotChocolate.Path.FromList(segments));
+            }
         }
 
-        IError error = new Error(
-            graphQLError.Message,
-            string.Empty,
-            new ExceptionPath(graphQLError.Path),
-            locations
-        );
+        if (graphQLError.Locations != null)
+        {
+            foreach (var location in graphQLError.Locations)
+            {
+                builder.AddLocation(new Location((int)location.Line, (int)location.Column));
+            }
+        }
 
-        return error;
+        return builder.Build();
     }
 
     // Converts a ValidationFailure object to an IError object
     public static IError ConvertToIError(this ValidationFailure validationFailure)
-        => new Error(
-            validationFailure.ErrorMessage
-        //,validationFailure.ErrorCode
-        //,new ExceptionPath(validationFailure.PropertyName)
-        );
-
-    // Represents a custom path for an error
-    public class ExceptionPath : HotChocolate.Path
-    {
-        // Initializes a new instance of the ExceptionPath class with an ErrorPath object
-        public ExceptionPath(ErrorPath? errorPath)
-        {
-            if (errorPath != null)
-            {
-                foreach (var segment in errorPath.ToList())
-                {
-                    Append(segment?.ToString() ?? string.Empty);
-                }
-            }
-        }
-
-        // Initializes a new instance of the ExceptionPath class with a property name
-        public ExceptionPath(string property)
-        {
-            if (!string.IsNullOrEmpty(property))
-            {
-                Append(property);
-            }
-        }
-    }
+        => ErrorBuilder.New()
+            .SetMessage(validationFailure.ErrorMessage)
+            .Build();
 }
