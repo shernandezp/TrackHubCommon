@@ -13,17 +13,18 @@
 //  limitations under the License.
 //
 
-namespace Common.Domain.Constants;
+using Common.Application.Interfaces;
 
-public static class FeatureKeys
+namespace Common.Application.Services;
+
+/// <summary>
+/// Default implementation registered when no service has supplied a real
+/// <see cref="IFeatureFlagService"/>. Always returns <c>true</c> so services that do
+/// not own a feature flag store continue to function. The Manager registers a
+/// DB-backed override.
+/// </summary>
+public sealed class AlwaysEnabledFeatureFlagService : IFeatureFlagService
 {
-    public const string Geofencing = "geofencing";
-    public const string TripManagement = "trip-management";
-    public const string DriverMobile = "driver-mobile";
-    public const string Reports = "reports";
-    public const string PublicLinks = "public-links";
-    public const string Documents = "documents";
-    public const string Notifications = "notifications";
-    public const string GpsIntegration = "gps.integration";
-    public const string GpsPositionHistory = "gps.positionHistory";
+    public Task<bool> IsEnabledAsync(Guid accountId, string featureKey, CancellationToken cancellationToken)
+        => Task.FromResult(true);
 }

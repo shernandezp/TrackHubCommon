@@ -13,17 +13,15 @@
 //  limitations under the License.
 //
 
-namespace Common.Domain.Constants;
+namespace Common.Application.Exceptions;
 
-public static class FeatureKeys
+/// <summary>
+/// Thrown by the <see cref="Common.Application.Behaviors.FeatureFlagBehavior{TRequest, TResponse}"/>
+/// when a request requires a feature flag that is not enabled for the resolved account.
+/// </summary>
+public sealed class FeatureDisabledException(string featureKey, Guid? accountId)
+    : Exception($"Feature '{featureKey}' is not enabled" + (accountId.HasValue ? $" for account {accountId.Value}." : "."))
 {
-    public const string Geofencing = "geofencing";
-    public const string TripManagement = "trip-management";
-    public const string DriverMobile = "driver-mobile";
-    public const string Reports = "reports";
-    public const string PublicLinks = "public-links";
-    public const string Documents = "documents";
-    public const string Notifications = "notifications";
-    public const string GpsIntegration = "gps.integration";
-    public const string GpsPositionHistory = "gps.positionHistory";
+    public string FeatureKey { get; } = featureKey;
+    public Guid? AccountId { get; } = accountId;
 }

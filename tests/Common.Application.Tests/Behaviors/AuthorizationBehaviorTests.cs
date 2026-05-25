@@ -60,7 +60,9 @@ public class AuthorizationBehaviorTests
 
         var behavior = new AuthorizationBehavior<AuthorizedRequest, string>(_userMock.Object, _identityServiceMock.Object);
         var act = () => behavior.HandleAsync(new AuthorizedRequest(), () => Task.FromResult("OK"), CancellationToken.None);
-        await act.Should().ThrowAsync<ForbiddenAccessException>();
+        var exception = await act.Should().ThrowAsync<ForbiddenAccessException>();
+        exception.Which.Resource.Should().Be("Users");
+        exception.Which.Action.Should().Be("Read");
     }
 
     [Fact]
@@ -88,7 +90,9 @@ public class AuthorizationBehaviorTests
 
         var behavior = new AuthorizationBehavior<AuthorizedRequest, string>(_userMock.Object, _identityServiceMock.Object);
         var act = () => behavior.HandleAsync(new AuthorizedRequest(), () => Task.FromResult("OK"), CancellationToken.None);
-        await act.Should().ThrowAsync<ForbiddenAccessException>();
+        var exception = await act.Should().ThrowAsync<ForbiddenAccessException>();
+        exception.Which.Resource.Should().Be("Users");
+        exception.Which.Action.Should().Be("Read");
     }
 
     [Fact]
@@ -102,7 +106,9 @@ public class AuthorizationBehaviorTests
 
         var behavior = new AuthorizationBehavior<AuthorizedRequest, string>(_userMock.Object, _identityServiceMock.Object);
         var act = () => behavior.HandleAsync(new AuthorizedRequest(), () => Task.FromResult("OK"), CancellationToken.None);
-        await act.Should().ThrowAsync<ForbiddenAccessException>();
+        var exception = await act.Should().ThrowAsync<ForbiddenAccessException>();
+        exception.Which.Resource.Should().Be("Users");
+        exception.Which.Action.Should().Be("Read");
     }
 
     [Fact]

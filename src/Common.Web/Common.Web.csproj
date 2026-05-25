@@ -10,6 +10,8 @@
     <PackageReference Include="Microsoft.AspNetCore.OpenApi" />
     <PackageReference Include="Microsoft.Extensions.Diagnostics.HealthChecks.EntityFrameworkCore" />
     <PackageReference Include="FluentValidation" />
+    <PackageReference Include="HotChocolate" />
+    <PackageReference Include="HotChocolate.Execution.Abstractions" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\Common.Application\Common.Application.csproj" />

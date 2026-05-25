@@ -16,8 +16,11 @@
 using System.Reflection;
 using Ardalis.GuardClauses;
 using Common.Application.Behaviors;
+using Common.Application.Interfaces;
+using Common.Application.Services;
 using Common.Mediator;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.DependencyInjection.Extensions;
 
 namespace Common.Application;
 public static class DependencyInjection
@@ -27,12 +30,15 @@ public static class DependencyInjection
         services.AddValidatorsFromAssembly(assembly);
         Guard.Against.Null(assembly, message: $"Application assemblies not loaded.");
 
+        services.TryAddScoped<IFeatureFlagService, AlwaysEnabledFeatureFlagService>();
+
         services.AddMediator(cfg =>
         {
             cfg.RegisterServicesFromAssembly(assembly);
             cfg.AddBehavior(typeof(IPipelineBehavior<,>), typeof(LoggingBehavior<,>));
             cfg.AddBehavior(typeof(IPipelineBehavior<,>), typeof(UnhandledExceptionBehavior<,>));
             cfg.AddBehavior(typeof(IPipelineBehavior<,>), typeof(AuthorizationBehavior<,>));
+            cfg.AddBehavior(typeof(IPipelineBehavior<,>), typeof(FeatureFlagBehavior<,>));
             cfg.AddBehavior(typeof(IPipelineBehavior<,>), typeof(CachingBehavior<,>));
             cfg.AddBehavior(typeof(IPipelineBehavior<,>), typeof(RateLimitingBehavior<,>));
             if (isGraphQL)

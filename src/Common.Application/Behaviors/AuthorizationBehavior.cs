@@ -44,13 +44,16 @@ public class AuthorizationBehavior<TRequest, TResponse>(
             var principalType = ResolveEffectivePrincipalType();
             foreach (var attribute in authorizeAttributes)
                 if (!IsPrincipalAllowed(principalType, attribute.PrincipalTypes))
-                    throw new ForbiddenAccessException();
+                    throw new ForbiddenAccessException(
+                        attribute.Resource,
+                        attribute.Action,
+                        $"Principal type '{principalType}' is not allowed. Allowed principal types: {attribute.PrincipalTypes}.");
 
             if (principalType == PrincipalType.ServiceClient)
             {
                 foreach (var attribute in authorizeAttributes)
                     if (!await identityService.IsValidServiceAsync(user.Client ?? user.SubjectId, attribute.Resource, attribute.Action, user.AccountId, user.Scopes, user.Audiences, cancellationToken))
-                        throw new ForbiddenAccessException();
+                        throw new ForbiddenAccessException(attribute.Resource, attribute.Action);
             }
             else
             {
@@ -74,7 +77,7 @@ public class AuthorizationBehavior<TRequest, TResponse>(
                     // If the user is not authorized, throw ForbiddenAccessException
                     if (!roleAuthorized || !policyAuthorized)
                     {
-                        throw new ForbiddenAccessException();
+                        throw new ForbiddenAccessException(resource, action);
                     }
                 }
             }

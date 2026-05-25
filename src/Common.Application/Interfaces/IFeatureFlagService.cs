@@ -13,17 +13,13 @@
 //  limitations under the License.
 //
 
-namespace Common.Domain.Constants;
+namespace Common.Application.Interfaces;
 
-public static class FeatureKeys
+/// <summary>
+/// Abstraction over the per-account feature flag store. Implementations must honour
+/// effective-from / effective-to windows and treat missing rows as disabled.
+/// </summary>
+public interface IFeatureFlagService
 {
-    public const string Geofencing = "geofencing";
-    public const string TripManagement = "trip-management";
-    public const string DriverMobile = "driver-mobile";
-    public const string Reports = "reports";
-    public const string PublicLinks = "public-links";
-    public const string Documents = "documents";
-    public const string Notifications = "notifications";
-    public const string GpsIntegration = "gps.integration";
-    public const string GpsPositionHistory = "gps.positionHistory";
+    Task<bool> IsEnabledAsync(Guid accountId, string featureKey, CancellationToken cancellationToken);
 }
