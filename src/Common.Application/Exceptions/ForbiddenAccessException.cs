@@ -17,5 +17,36 @@ namespace Common.Application.Exceptions;
 
 public class ForbiddenAccessException : Exception
 {
-    public ForbiddenAccessException() : base() { }
+    public ForbiddenAccessException()
+        : this("Insufficient permissions.")
+    {
+    }
+
+    public ForbiddenAccessException(string message)
+        : base(message)
+    {
+    }
+
+    public ForbiddenAccessException(string resource, string action, string? reason = null)
+        : base(CreateMessage(resource, action, reason))
+    {
+        Resource = resource;
+        Action = action;
+        Reason = reason;
+    }
+
+    public string? Resource { get; }
+    public string? Action { get; }
+    public string? Reason { get; }
+
+    private static string CreateMessage(string resource, string action, string? reason)
+    {
+        var permission = string.IsNullOrWhiteSpace(resource) && string.IsNullOrWhiteSpace(action)
+            ? "unspecified"
+            : $"{resource}.{action}".Trim('.');
+
+        return string.IsNullOrWhiteSpace(reason)
+            ? $"Insufficient permissions. Required permission: {permission}."
+            : $"Insufficient permissions. Required permission: {permission}. {reason}";
+    }
 }

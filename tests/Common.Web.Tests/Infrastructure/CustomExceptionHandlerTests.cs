@@ -67,11 +67,14 @@ public class CustomExceptionHandlerTests
     public async Task TryHandleAsync_ForbiddenAccessException_Returns403()
     {
         var context = CreateHttpContext();
-        var exception = new ForbiddenAccessException();
+        var exception = new ForbiddenAccessException("Users", "Read");
 
         var handled = await _handler.TryHandleAsync(context, exception, CancellationToken.None);
         handled.Should().BeTrue();
         context.Response.StatusCode.Should().Be(StatusCodes.Status403Forbidden);
+
+        var problemDetails = await ReadProblemDetails(context);
+        problemDetails!.Detail.Should().Be("Insufficient permissions. Required permission: Users.Read.");
     }
 
     [Fact]

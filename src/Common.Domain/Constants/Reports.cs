@@ -21,4 +21,16 @@ public abstract class Reports
     public const string PositionRecord = nameof(PositionRecord);
     public const string TransportersInGeofence = nameof(TransportersInGeofence);
     public const string GeofenceEvents = nameof(GeofenceEvents);
+
+    // GPS integration reports
+    public const string GpsProviderHealthSummary = "gps.provider-health-summary";
+    public const string GpsProviderSyncHistory = "gps.provider-sync-history";
+    public const string GpsSyncStatistics = "gps.sync-statistics";
+    public const string GpsSynchronizedDeviceInventory = "gps.synchronized-device-inventory";
+    public const string GpsRecentlyAddedDevices = "gps.recently-added-devices";
+    public const string GpsUnassignedDevices = "gps.unassigned-devices";
+    public const string GpsIgnoredDevices = "gps.ignored-devices";
+    public const string GpsAssignmentHistory = "gps.assignment-history";
+    public const string GpsLatestPositionFreshness = "gps.latest-position-freshness";
+    public const string GpsPositionHistory = "gps.position-history";
 }

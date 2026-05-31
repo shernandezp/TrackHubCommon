@@ -113,12 +113,14 @@ public class CustomExceptionHandler : IExceptionHandler
     // and returning a ProblemDetails object as JSON response.
     private async Task HandleForbiddenAccessException(HttpContext httpContext, Exception ex)
     {
+        var exception = (ForbiddenAccessException)ex;
         httpContext.Response.StatusCode = StatusCodes.Status403Forbidden;
 
         await httpContext.Response.WriteAsJsonAsync(new ProblemDetails
         {
             Status = StatusCodes.Status403Forbidden,
             Title = "Forbidden",
+            Detail = exception.Message,
             Type = "https://tools.ietf.org/html/rfc7231#section-6.5.3"
         });
     }

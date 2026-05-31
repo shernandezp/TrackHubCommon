@@ -51,8 +51,12 @@ public static class TableMetadata
     public const string NotificationDelivery = "notification_deliveries";
     public const string ServiceClientPermission = "service_client_permissions";
     public const string Transporter = "transporters";
+    public const string TransporterDeviceAssignment = "transporter_device_assignments";
     public const string TransporterPosition = "transporter_position";
+    public const string TransporterPositionHistory = "transporter_position_history";
     public const string TransporterType = "transporter_type";
+    public const string OperatorHealthCheck = "operator_health_checks";
+    public const string OperatorSyncRun = "operator_sync_runs";
     public const string Trip = "trips";
     public const string TripDestination = "tripdestinations";
     public const string User = "users";
