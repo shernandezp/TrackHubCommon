@@ -34,10 +34,12 @@ public static class TableMetadata
     public const string DriverCredential = "driver_credentials";
     public const string DriverDeviceRegistration = "driver_device_registrations";
     public const string TransporterGroup = "transporter_group";
+    public const string GeocodingProvider = "geocoding_providers";
     public const string Geofence = "geofences";
     public const string GeofenceEvent = "geofenceevents";
     public const string Group = "groups";
     public const string Operator = "operators";
+    public const string PointOfInterest = "points_of_interest";
     public const string Policy = "policies";
     public const string Position = "position";
     public const string PublicLinkGrant = "public_link_grants";

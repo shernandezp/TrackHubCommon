@@ -43,9 +43,12 @@ public class LoggingBehavior<TRequest, TResponse>(
         var userId = user.Id ?? string.Empty;
         string? userName = string.Empty;
 
-        if (!string.IsNullOrEmpty(userId))
+        // Resolve the display name only when Debug logging is on (it costs an identity round-trip)
+        // and only for user principals: service-client tokens carry a non-Guid subject (the client
+        // id), which must not fail the request pipeline.
+        if (logger.IsEnabled(LogLevel.Debug) && Guid.TryParse(userId, out var userGuid))
         {
-            userName = await identityService.GetUserNameAsync(new Guid(userId), cancellationToken);
+            userName = await identityService.GetUserNameAsync(userGuid, cancellationToken);
         }
 
         logger.LogDebug("TrackHub Request Starting: {Name} by {UserId} ({UserName})",

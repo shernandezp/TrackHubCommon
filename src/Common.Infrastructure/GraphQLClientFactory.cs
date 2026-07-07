@@ -34,10 +34,21 @@ public sealed class GraphQLClientFactory(IHttpClientFactory httpClientFactory, I
     /// </summary>
     /// <param name="name">The name of the client.</param>
     /// <returns>An instance of `IGraphQLClient`.</returns>
-    public IGraphQLClient CreateClient(string name)
+    public IGraphQLClient CreateClient(string name) => CreateClient(name, asService: false);
+
+    /// <summary>
+    /// Creates a new instance of `IGraphQLClient` with the specified name. When `asService` is true,
+    /// the client authenticates with the host's client-credentials identity even if the host normally
+    /// propagates user tokens; a dedicated `{name}AsService` HttpClient is used so user-token header
+    /// propagation configured on the named client does not apply.
+    /// </summary>
+    /// <param name="name">The name of the client.</param>
+    /// <param name="asService">True to authenticate with client credentials.</param>
+    /// <returns>An instance of `IGraphQLClient`.</returns>
+    public IGraphQLClient CreateClient(string name, bool asService)
     {
         // Create an instance of `HttpClient` using the `IHttpClientFactory`.
-        var httpClient = httpClientFactory.CreateClient(name);
+        var httpClient = httpClientFactory.CreateClient(asService ? $"{name}AsService" : name);
 
         // Get the URL for the GraphQL service from the configuration.
         var url = configuration.GetValue<string>($"AppSettings:GraphQL{name}Service");
@@ -47,9 +58,9 @@ public sealed class GraphQLClientFactory(IHttpClientFactory httpClientFactory, I
 
         // Get the value of the `IsService` setting from the configuration.
         var isService = configuration.GetValue<bool?>($"AuthorityServer:IsService");
-        if (isService.HasValue && isService.Value) 
+        if (asService || (isService.HasValue && isService.Value))
         {
-            // If the `IsService` setting is true, retrieve an access token using client credentials.
+            // Retrieve an access token using client credentials.
             var token = GetClientCredentialsTokenAsync().Result;
             httpClient.DefaultRequestHeaders.Add("Authorization", $"Bearer {token}");
         }

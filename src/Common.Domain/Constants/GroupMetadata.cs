@@ -15,14 +15,20 @@
 
 namespace Common.Domain.Constants;
 
-public static class FeatureKeys
+/// <summary>
+/// Well-known group metadata shared across services.
+/// </summary>
+public static class GroupMetadata
 {
-    public const string Geofencing = "geofencing";
-    public const string TripManagement = "trip-management";
-    public const string DriverMobile = "driver-mobile";
-    public const string PublicLinks = "public-links";
-    public const string Documents = "documents";
-    public const string Notifications = "notifications";
-    public const string GpsIntegration = "gps.integration";
-    public const string GpsPositionHistory = "gps.positionHistory";
+    /// <summary>
+    /// Name of the account's default group. Auto-provisioned transporters created by the
+    /// device sync are placed here so plain (group-scoped) users can see them on the live map.
+    /// Resolved by name and created on first use.
+    /// </summary>
+    public const string DefaultGroupName = "General";
+
+    /// <summary>
+    /// Description applied to the default group when the sync creates it on first use.
+    /// </summary>
+    public const string DefaultGroupDescription = "Auto-provisioned units";
 }

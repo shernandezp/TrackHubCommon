@@ -42,6 +42,15 @@ public sealed class TrackHubGraphQLErrorFilter : IErrorFilter
             return builder.Build();
         }
 
+        if (error.Exception is FeatureDisabledException featureDisabled)
+        {
+            return ErrorBuilder.FromError(error)
+                .SetMessage(featureDisabled.Message)
+                .SetCode("FEATURE_DISABLED")
+                .SetExtension("featureKey", featureDisabled.FeatureKey)
+                .Build();
+        }
+
         if (error.Exception is UnauthorizedAccessException)
         {
             return ErrorBuilder.FromError(error)
