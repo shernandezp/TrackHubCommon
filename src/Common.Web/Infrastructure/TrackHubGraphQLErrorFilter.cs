@@ -59,6 +59,14 @@ public sealed class TrackHubGraphQLErrorFilter : IErrorFilter
                 .Build();
         }
 
+        if (error.Exception is ConflictException conflict)
+        {
+            return ErrorBuilder.FromError(error)
+                .SetMessage(conflict.Message)
+                .SetCode("CONFLICT")
+                .Build();
+        }
+
         return error;
     }
 }

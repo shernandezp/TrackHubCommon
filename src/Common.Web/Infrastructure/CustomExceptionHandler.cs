@@ -35,6 +35,7 @@ public class CustomExceptionHandler : IExceptionHandler
                 { typeof(UnauthorizedAccessException), HandleUnauthorizedAccessException },
                 { typeof(ForbiddenAccessException), HandleForbiddenAccessException },
                 { typeof(TooManyRequestsException), HandleTooManyRequestsException },
+                { typeof(ConflictException), HandleConflictException },
             };
     }
 
@@ -61,6 +62,19 @@ public class CustomExceptionHandler : IExceptionHandler
         }, cancellationToken);
 
         return true;
+    }
+
+    // HandleConflictException handles ConflictException by setting the response status code to 409 (Conflict).
+    private async Task HandleConflictException(HttpContext httpContext, Exception ex)
+    {
+        httpContext.Response.StatusCode = StatusCodes.Status409Conflict;
+
+        await httpContext.Response.WriteAsJsonAsync(new ProblemDetails
+        {
+            Status = StatusCodes.Status409Conflict,
+            Title = ex.Message,
+            Type = "https://tools.ietf.org/html/rfc7231#section-6.5.8"
+        });
     }
 
     // HandleValidationException method handles the ValidationException by setting the response status code to 400 (Bad Request)
