@@ -51,6 +51,15 @@ public sealed class TrackHubGraphQLErrorFilter : IErrorFilter
                 .Build();
         }
 
+        if (error.Exception is AccountSuspendedException accountSuspended)
+        {
+            return ErrorBuilder.FromError(error)
+                .SetMessage(accountSuspended.Message)
+                .SetCode("ACCOUNT_SUSPENDED")
+                .SetExtension("accountStatus", accountSuspended.Status.ToString())
+                .Build();
+        }
+
         if (error.Exception is UnauthorizedAccessException)
         {
             return ErrorBuilder.FromError(error)

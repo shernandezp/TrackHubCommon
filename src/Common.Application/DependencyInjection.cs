@@ -31,6 +31,7 @@ public static class DependencyInjection
         Guard.Against.Null(assembly, message: $"Application assemblies not loaded.");
 
         services.TryAddScoped<IFeatureFlagService, AlwaysEnabledFeatureFlagService>();
+        services.TryAddScoped<IAccountOperationalStatusService, AlwaysOperationalAccountStatusService>();
 
         services.AddMediator(cfg =>
         {
@@ -38,6 +39,7 @@ public static class DependencyInjection
             cfg.AddBehavior(typeof(IPipelineBehavior<,>), typeof(LoggingBehavior<,>));
             cfg.AddBehavior(typeof(IPipelineBehavior<,>), typeof(UnhandledExceptionBehavior<,>));
             cfg.AddBehavior(typeof(IPipelineBehavior<,>), typeof(AuthorizationBehavior<,>));
+            cfg.AddBehavior(typeof(IPipelineBehavior<,>), typeof(AccountStatusBehavior<,>));
             cfg.AddBehavior(typeof(IPipelineBehavior<,>), typeof(FeatureFlagBehavior<,>));
             cfg.AddBehavior(typeof(IPipelineBehavior<,>), typeof(CachingBehavior<,>));
             cfg.AddBehavior(typeof(IPipelineBehavior<,>), typeof(RateLimitingBehavior<,>));
