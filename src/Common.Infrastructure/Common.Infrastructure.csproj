@@ -21,4 +21,8 @@
   <ItemGroup>
     <ProjectReference Include="..\Common.Application\Common.Application.csproj" />
   </ItemGroup>
+  <ItemGroup>
+    <!-- Contract tests validate the Identity GraphQL documents against the Security schema. -->
+    <InternalsVisibleTo Include="TrackHub.ServiceContracts.Tests" />
+  </ItemGroup>
 </Project>

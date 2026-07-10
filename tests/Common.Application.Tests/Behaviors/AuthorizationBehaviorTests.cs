@@ -72,13 +72,12 @@ public class AuthorizationBehaviorTests
     }
 
     [Fact]
-    public async Task Handle_UserRole_BothAuthorized_ProceedsToNext()
+    public async Task Handle_User_Authorized_ProceedsToNext()
     {
         var userId = Guid.NewGuid();
         _userMock.Setup(u => u.Id).Returns(userId.ToString());
         _userMock.Setup(u => u.Role).Returns("admin");
-        _identityServiceMock.Setup(s => s.IsInRoleAsync(userId, "Users", "Read", It.IsAny<CancellationToken>())).ReturnsAsync(true);
-        _identityServiceMock.Setup(s => s.AuthorizeAsync(userId, "Users", "Read", It.IsAny<CancellationToken>())).ReturnsAsync(true);
+        _identityServiceMock.Setup(s => s.AuthorizeUserAsync(userId, "Users", "Read", It.IsAny<CancellationToken>())).ReturnsAsync(true);
 
         var behavior = new AuthorizationBehavior<AuthorizedRequest, string>(_userMock.Object, _identityServiceMock.Object);
         var result = await behavior.HandleAsync(new AuthorizedRequest(), () => Task.FromResult("OK"), CancellationToken.None);
@@ -86,29 +85,28 @@ public class AuthorizationBehaviorTests
     }
 
     [Fact]
-    public async Task Handle_UserRole_NotInRole_ThrowsForbidden()
+    public async Task Handle_User_Authorized_MakesExactlyOneIdentityCall()
     {
         var userId = Guid.NewGuid();
         _userMock.Setup(u => u.Id).Returns(userId.ToString());
-        _userMock.Setup(u => u.Role).Returns("user");
-        _identityServiceMock.Setup(s => s.IsInRoleAsync(userId, "Users", "Read", It.IsAny<CancellationToken>())).ReturnsAsync(false);
-        _identityServiceMock.Setup(s => s.AuthorizeAsync(userId, "Users", "Read", It.IsAny<CancellationToken>())).ReturnsAsync(true);
+        _userMock.Setup(u => u.Role).Returns("admin");
+        _identityServiceMock.Setup(s => s.AuthorizeUserAsync(userId, "Users", "Read", It.IsAny<CancellationToken>())).ReturnsAsync(true);
 
         var behavior = new AuthorizationBehavior<AuthorizedRequest, string>(_userMock.Object, _identityServiceMock.Object);
-        var act = () => behavior.HandleAsync(new AuthorizedRequest(), () => Task.FromResult("OK"), CancellationToken.None);
-        var exception = await act.Should().ThrowAsync<ForbiddenAccessException>();
-        exception.Which.Resource.Should().Be("Users");
-        exception.Which.Action.Should().Be("Read");
+        await behavior.HandleAsync(new AuthorizedRequest(), () => Task.FromResult("OK"), CancellationToken.None);
+
+        _identityServiceMock.Verify(s => s.AuthorizeUserAsync(userId, "Users", "Read", It.IsAny<CancellationToken>()), Times.Once);
+        _identityServiceMock.Verify(s => s.IsInRoleAsync(It.IsAny<Guid>(), It.IsAny<string>(), It.IsAny<string>(), It.IsAny<CancellationToken>()), Times.Never);
+        _identityServiceMock.Verify(s => s.AuthorizeAsync(It.IsAny<Guid>(), It.IsAny<string>(), It.IsAny<string>(), It.IsAny<CancellationToken>()), Times.Never);
     }
 
     [Fact]
-    public async Task Handle_UserRole_NotAuthorized_ThrowsForbidden()
+    public async Task Handle_User_NotAuthorized_ThrowsForbidden()
     {
         var userId = Guid.NewGuid();
         _userMock.Setup(u => u.Id).Returns(userId.ToString());
         _userMock.Setup(u => u.Role).Returns("user");
-        _identityServiceMock.Setup(s => s.IsInRoleAsync(userId, "Users", "Read", It.IsAny<CancellationToken>())).ReturnsAsync(true);
-        _identityServiceMock.Setup(s => s.AuthorizeAsync(userId, "Users", "Read", It.IsAny<CancellationToken>())).ReturnsAsync(false);
+        _identityServiceMock.Setup(s => s.AuthorizeUserAsync(userId, "Users", "Read", It.IsAny<CancellationToken>())).ReturnsAsync(false);
 
         var behavior = new AuthorizationBehavior<AuthorizedRequest, string>(_userMock.Object, _identityServiceMock.Object);
         var act = () => behavior.HandleAsync(new AuthorizedRequest(), () => Task.FromResult("OK"), CancellationToken.None);
@@ -146,6 +144,7 @@ public class AuthorizationBehaviorTests
         result.Should().Be("OK");
         _identityServiceMock.Verify(s => s.IsInRoleAsync(It.IsAny<Guid>(), It.IsAny<string>(), It.IsAny<string>(), It.IsAny<CancellationToken>()), Times.Never);
         _identityServiceMock.Verify(s => s.AuthorizeAsync(It.IsAny<Guid>(), It.IsAny<string>(), It.IsAny<string>(), It.IsAny<CancellationToken>()), Times.Never);
+        _identityServiceMock.Verify(s => s.AuthorizeUserAsync(It.IsAny<Guid>(), It.IsAny<string>(), It.IsAny<string>(), It.IsAny<CancellationToken>()), Times.Never);
     }
 
     [Fact]
@@ -209,8 +208,7 @@ public class AuthorizationBehaviorTests
         var userId = Guid.NewGuid();
         _userMock.Setup(u => u.Id).Returns(userId.ToString());
         _userMock.Setup(u => u.Role).Returns(string.Empty);
-        _identityServiceMock.Setup(s => s.IsInRoleAsync(userId, "Users", "Read", It.IsAny<CancellationToken>())).ReturnsAsync(true);
-        _identityServiceMock.Setup(s => s.AuthorizeAsync(userId, "Users", "Read", It.IsAny<CancellationToken>())).ReturnsAsync(true);
+        _identityServiceMock.Setup(s => s.AuthorizeUserAsync(userId, "Users", "Read", It.IsAny<CancellationToken>())).ReturnsAsync(true);
 
         var behavior = new AuthorizationBehavior<AuthorizedRequest, string>(_userMock.Object, _identityServiceMock.Object);
         var result = await behavior.HandleAsync(new AuthorizedRequest(), () => Task.FromResult("OK"), CancellationToken.None);

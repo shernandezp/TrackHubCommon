@@ -81,16 +81,9 @@ public static class DependencyInjection
 
         if (isGraphQLClient)
         {
-            services.AddHttpClient(Clients.Identity,
-                client =>
-                {
-                    var url = configuration.GetValue<string>($"AppSettings:GraphQL{Clients.Identity}Service");
-                    Guard.Against.Null(url, message: $"Setting 'GraphQL{Clients.Identity}Service' not found.");
-                    client.BaseAddress = new Uri(url);
-                    client.Timeout = TimeSpan.FromSeconds(30);
-                })
-                .AddHeaderPropagation()
-                .AddStandardResilienceHandler();
+            // Identity client runs queries only — full resilience (incl. retry) is safe.
+            services.AddGraphQLClient(Clients.Identity, resilience: GraphQLClientResilience.WithRetry);
+            services.AddMemoryCache();
             services.AddSingleton<IGraphQLClientFactory, GraphQLClientFactory>();
             services.AddScoped<IIdentityService, IdentityService>();
         }

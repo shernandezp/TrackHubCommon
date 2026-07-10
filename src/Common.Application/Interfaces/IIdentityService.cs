@@ -23,6 +23,13 @@ public interface IIdentityService
 
     Task<bool> AuthorizeAsync(Guid userId, string resource, string action, CancellationToken token);
 
+    /// <summary>
+    /// Combined role + policy authorization decision for a user, evaluated by Security in a
+    /// single call. This is the method the authorization pipeline uses; <see cref="IsInRoleAsync"/>
+    /// and <see cref="AuthorizeAsync"/> remain as the underlying primitives.
+    /// </summary>
+    Task<bool> AuthorizeUserAsync(Guid userId, string resource, string action, CancellationToken token);
+
     Task<bool> IsValidServiceAsync(string? client, CancellationToken token);
 
     Task<bool> IsValidServiceAsync(string? client, string resource, string action, CancellationToken token);

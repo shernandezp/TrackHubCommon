@@ -60,6 +60,20 @@ public sealed class TrackHubGraphQLErrorFilter : IErrorFilter
                 .Build();
         }
 
+        if (error.Exception is TooManyRequestsException tooManyRequests)
+        {
+            var builder = ErrorBuilder.FromError(error)
+                .SetMessage(tooManyRequests.Message)
+                .SetCode("TOO_MANY_REQUESTS");
+
+            if (tooManyRequests.RetryAfterSeconds is { } retryAfter)
+            {
+                builder.SetExtension("retryAfterSeconds", retryAfter);
+            }
+
+            return builder.Build();
+        }
+
         if (error.Exception is UnauthorizedAccessException)
         {
             return ErrorBuilder.FromError(error)
