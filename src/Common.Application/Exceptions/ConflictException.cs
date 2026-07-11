@@ -1,4 +1,4 @@
-﻿// Copyright (c) 2026 Sergio Hernandez. All rights reserved.
+// Copyright (c) 2026 Sergio Hernandez. All rights reserved.
 //
 //  Licensed under the Apache License, Version 2.0 (the "License").
 //  You may not use this file except in compliance with the License.
@@ -13,15 +13,21 @@
 //  limitations under the License.
 //
 
-namespace Common.Domain.Constants;
+namespace Common.Application.Exceptions;
 
-public static class SchemaMetadata
+/// <summary>
+/// Thrown when a create/update would violate a uniqueness constraint (duplicate resource).
+/// Maps to HTTP 409 (REST) / the <c>CONFLICT</c> GraphQL error code.
+/// </summary>
+public class ConflictException : Exception
 {
-    public const string Application = "app";
-    public const string Geofencing = "geofencing";
-    public const string Map = "map";
-    public const string Public = "public";
-    public const string Security = "security";
-    public const string Telemetry = "telemetry";
-    public const string Trip = "trip";
+    public ConflictException()
+        : this("The resource already exists.")
+    {
+    }
+
+    public ConflictException(string message)
+        : base(message)
+    {
+    }
 }

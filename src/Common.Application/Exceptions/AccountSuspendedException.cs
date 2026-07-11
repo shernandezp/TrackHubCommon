@@ -13,16 +13,18 @@
 //  limitations under the License.
 //
 
-namespace Common.Domain.Constants;
+using Common.Domain.Enums;
 
-public static class FeatureKeys
+namespace Common.Application.Exceptions;
+
+/// <summary>
+/// Thrown by <see cref="Common.Application.Behaviors.AccountStatusBehavior{TRequest, TResponse}"/>
+/// when an account-scoped request resolves to a non-operational account. Mapped to the GraphQL
+/// <c>ACCOUNT_SUSPENDED</c> error code and to HTTP 403 for REST.
+/// </summary>
+public sealed class AccountSuspendedException(Guid accountId, AccountStatus status)
+    : Exception($"Account '{accountId}' is not operational (status: {status}).")
 {
-    public const string Geofencing = "geofencing";
-    public const string TripManagement = "trip-management";
-    public const string DriverMobile = "driver-mobile";
-    public const string PublicLinks = "public-links";
-    public const string Documents = "documents";
-    public const string Notifications = "notifications";
-    public const string GpsIntegration = "gps.integration";
-    public const string GpsPositionHistory = "gps.positionHistory";
+    public Guid AccountId { get; } = accountId;
+    public AccountStatus Status { get; } = status;
 }

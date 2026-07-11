@@ -21,6 +21,7 @@ public abstract class Resources
     public const string AccountsMaster = nameof(AccountsMaster);
     public const string Administrative = nameof(Administrative);
     public const string AccountFeatures = nameof(AccountFeatures);
+    public const string AccountFeaturesMaster = nameof(AccountFeaturesMaster);
     public const string Alerts = nameof(Alerts);
     public const string Audit = nameof(Audit);
     public const string BackgroundJobs = nameof(BackgroundJobs);
@@ -29,6 +30,7 @@ public abstract class Resources
     public const string DevicesMaster = nameof(DevicesMaster);
     public const string Documents = nameof(Documents);
     public const string Drivers = nameof(Drivers);
+    public const string GeocodingProviders = nameof(GeocodingProviders);
     public const string Geofences = nameof(Geofences);
     public const string Geofencing = nameof(Geofencing);
     public const string GpsIntegrationDashboard = nameof(GpsIntegrationDashboard);
@@ -40,6 +42,7 @@ public abstract class Resources
     public const string OperatorHealth = nameof(OperatorHealth);
     public const string OperatorSyncRuns = nameof(OperatorSyncRuns);
     public const string Permissions = nameof(Permissions);
+    public const string PointsOfInterest = nameof(PointsOfInterest);
     public const string Positions = nameof(Positions);
     public const string PositionHistory = nameof(PositionHistory);
     public const string Profile = nameof(Profile);

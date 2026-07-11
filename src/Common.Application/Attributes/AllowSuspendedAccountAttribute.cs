@@ -13,16 +13,13 @@
 //  limitations under the License.
 //
 
-namespace Common.Domain.Constants;
+namespace Common.Application.Attributes;
 
-public static class FeatureKeys
-{
-    public const string Geofencing = "geofencing";
-    public const string TripManagement = "trip-management";
-    public const string DriverMobile = "driver-mobile";
-    public const string PublicLinks = "public-links";
-    public const string Documents = "documents";
-    public const string Notifications = "notifications";
-    public const string GpsIntegration = "gps.integration";
-    public const string GpsPositionHistory = "gps.positionHistory";
-}
+/// <summary>
+/// Opt-out marker for <see cref="Common.Application.Behaviors.AccountStatusBehavior{TRequest, TResponse}"/>.
+/// Account-scoped operations are blocked by default when the account is non-operational; a request
+/// carrying this attribute is allowed regardless of status. Apply it only to the allow-list:
+/// billing, support, read-own-status, and lifecycle (status-change) operations.
+/// </summary>
+[AttributeUsage(AttributeTargets.Class | AttributeTargets.Struct, AllowMultiple = false, Inherited = true)]
+public sealed class AllowSuspendedAccountAttribute : Attribute;

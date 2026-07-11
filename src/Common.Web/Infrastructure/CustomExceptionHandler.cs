@@ -35,6 +35,8 @@ public class CustomExceptionHandler : IExceptionHandler
                 { typeof(UnauthorizedAccessException), HandleUnauthorizedAccessException },
                 { typeof(ForbiddenAccessException), HandleForbiddenAccessException },
                 { typeof(TooManyRequestsException), HandleTooManyRequestsException },
+                { typeof(ConflictException), HandleConflictException },
+                { typeof(AccountSuspendedException), HandleAccountSuspendedException },
             };
     }
 
@@ -61,6 +63,34 @@ public class CustomExceptionHandler : IExceptionHandler
         }, cancellationToken);
 
         return true;
+    }
+
+    // HandleConflictException handles ConflictException by setting the response status code to 409 (Conflict).
+    private async Task HandleConflictException(HttpContext httpContext, Exception ex)
+    {
+        httpContext.Response.StatusCode = StatusCodes.Status409Conflict;
+
+        await httpContext.Response.WriteAsJsonAsync(new ProblemDetails
+        {
+            Status = StatusCodes.Status409Conflict,
+            Title = ex.Message,
+            Type = "https://tools.ietf.org/html/rfc7231#section-6.5.8"
+        });
+    }
+
+    // HandleAccountSuspendedException handles AccountSuspendedException by setting the response status code to 403 (Forbidden).
+    private async Task HandleAccountSuspendedException(HttpContext httpContext, Exception ex)
+    {
+        var exception = (AccountSuspendedException)ex;
+        httpContext.Response.StatusCode = StatusCodes.Status403Forbidden;
+
+        await httpContext.Response.WriteAsJsonAsync(new ProblemDetails
+        {
+            Status = StatusCodes.Status403Forbidden,
+            Title = "Account not operational",
+            Detail = exception.Message,
+            Type = "https://tools.ietf.org/html/rfc7231#section-6.5.3"
+        });
     }
 
     // HandleValidationException method handles the ValidationException by setting the response status code to 400 (Bad Request)

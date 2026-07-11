@@ -8,6 +8,8 @@ public class ResourcesTests
     [Theory]
     [InlineData(Resources.Accounts, "Accounts")]
     [InlineData(Resources.AccountsMaster, "AccountsMaster")]
+    [InlineData(Resources.AccountFeatures, "AccountFeatures")]
+    [InlineData(Resources.AccountFeaturesMaster, "AccountFeaturesMaster")]
     [InlineData(Resources.Administrative, "Administrative")]
     [InlineData(Resources.Credentials, "Credentials")]
     [InlineData(Resources.Devices, "Devices")]

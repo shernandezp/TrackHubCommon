@@ -26,18 +26,34 @@ namespace Common.Infrastructure;
 // The `GraphQLClientFactory` class is responsible for creating instances of `IGraphQLClient`.
 public sealed class GraphQLClientFactory(IHttpClientFactory httpClientFactory, IConfiguration configuration) : IGraphQLClientFactory
 {
+    // Refresh the cached client-credentials token this long before its actual expiry so a
+    // token attached at client creation cannot expire mid-request.
+    private static readonly TimeSpan TokenExpiryMargin = TimeSpan.FromSeconds(60);
+
+    private readonly SemaphoreSlim _tokenLock = new(1, 1);
     private string? _cachedToken;
-    private DateTime _tokenExpiration;
+    private DateTimeOffset _tokenExpiration;
 
     /// <summary>
     /// Creates a new instance of `IGraphQLClient` with the specified name.
     /// </summary>
     /// <param name="name">The name of the client.</param>
     /// <returns>An instance of `IGraphQLClient`.</returns>
-    public IGraphQLClient CreateClient(string name)
+    public IGraphQLClient CreateClient(string name) => CreateClient(name, asService: false);
+
+    /// <summary>
+    /// Creates a new instance of `IGraphQLClient` with the specified name. When `asService` is true,
+    /// the client authenticates with the host's client-credentials identity even if the host normally
+    /// propagates user tokens; a dedicated `{name}AsService` HttpClient is used so user-token header
+    /// propagation configured on the named client does not apply.
+    /// </summary>
+    /// <param name="name">The name of the client.</param>
+    /// <param name="asService">True to authenticate with client credentials.</param>
+    /// <returns>An instance of `IGraphQLClient`.</returns>
+    public IGraphQLClient CreateClient(string name, bool asService)
     {
         // Create an instance of `HttpClient` using the `IHttpClientFactory`.
-        var httpClient = httpClientFactory.CreateClient(name);
+        var httpClient = httpClientFactory.CreateClient(asService ? $"{name}AsService" : name);
 
         // Get the URL for the GraphQL service from the configuration.
         var url = configuration.GetValue<string>($"AppSettings:GraphQL{name}Service");
@@ -47,10 +63,12 @@ public sealed class GraphQLClientFactory(IHttpClientFactory httpClientFactory, I
 
         // Get the value of the `IsService` setting from the configuration.
         var isService = configuration.GetValue<bool?>($"AuthorityServer:IsService");
-        if (isService.HasValue && isService.Value) 
+        if (asService || (isService.HasValue && isService.Value))
         {
-            // If the `IsService` setting is true, retrieve an access token using client credentials.
-            var token = GetClientCredentialsTokenAsync().Result;
+            // Retrieve an access token using client credentials. Blocking here is accepted:
+            // the token is cached process-wide, so this reaches the network at most once per
+            // token lifetime, and client classes create their GraphQL client in constructors.
+            var token = GetClientCredentialsTokenAsync().GetAwaiter().GetResult();
             httpClient.DefaultRequestHeaders.Add("Authorization", $"Bearer {token}");
         }
 
@@ -76,45 +94,63 @@ public sealed class GraphQLClientFactory(IHttpClientFactory httpClientFactory, I
     /// <returns>The access token.</returns>
     public async Task<string?> GetClientCredentialsTokenAsync()
     {
-        if (_cachedToken != null && DateTime.UtcNow < _tokenExpiration)
+        if (_cachedToken != null && DateTimeOffset.UtcNow < _tokenExpiration)
         {
             return _cachedToken;
         }
 
-        var clientId = configuration.GetValue<string>($"AuthorityServer:ClientId");
-        var clientSecret = configuration.GetValue<string>($"AuthorityServer:ClientSecret");
-        var tokenUrl = configuration.GetValue<string>($"AuthorityServer:Authority");
-        Guard.Against.Null(clientId, message: $"Setting 'ClientId' not found.");
-        Guard.Against.Null(clientSecret, message: $"Setting 'ClientSecret' not found.");
+        // The factory is a singleton: serialize refreshes so concurrent client creations
+        // trigger a single token request instead of a stampede.
+        await _tokenLock.WaitAsync();
+        try
+        {
+            if (_cachedToken != null && DateTimeOffset.UtcNow < _tokenExpiration)
+            {
+                return _cachedToken;
+            }
 
-        using var httpClient = httpClientFactory.CreateClient();
-        var formData = new Dictionary<string, string>
-        {
-            { "grant_type", "client_credentials" },
-            { "client_id", clientId },
-            { "client_secret", clientSecret }
-        };
-        var scope = configuration.GetValue<string>("AuthorityServer:Scope");
-        if (!string.IsNullOrEmpty(scope))
-        {
-            formData.Add("scope", scope);
+            var clientId = configuration.GetValue<string>($"AuthorityServer:ClientId");
+            var clientSecret = configuration.GetValue<string>($"AuthorityServer:ClientSecret");
+            var tokenUrl = configuration.GetValue<string>($"AuthorityServer:Authority");
+            Guard.Against.Null(clientId, message: $"Setting 'ClientId' not found.");
+            Guard.Against.Null(clientSecret, message: $"Setting 'ClientSecret' not found.");
+
+            using var httpClient = httpClientFactory.CreateClient();
+            var formData = new Dictionary<string, string>
+            {
+                { "grant_type", "client_credentials" },
+                { "client_id", clientId },
+                { "client_secret", clientSecret }
+            };
+            var scope = configuration.GetValue<string>("AuthorityServer:Scope");
+            if (!string.IsNullOrEmpty(scope))
+            {
+                formData.Add("scope", scope);
+            }
+            var request = new HttpRequestMessage(HttpMethod.Post, $"{tokenUrl}/token")
+            {
+                Content = new FormUrlEncodedContent(formData)
+            };
+
+            var response = await httpClient.SendAsync(request);
+            response.EnsureSuccessStatusCode();
+
+            var content = await response.Content.ReadAsStringAsync();
+            var tokenResponse = JsonSerializer.Deserialize<JsonElement>(content);
+            var token = tokenResponse.GetProperty("access_token").GetString();
+            var expiresIn = tokenResponse.GetProperty("expires_in").GetInt32();
+
+            var lifetime = TimeSpan.FromSeconds(expiresIn);
+            var margin = lifetime > TokenExpiryMargin + TokenExpiryMargin ? TokenExpiryMargin : TimeSpan.Zero;
+
+            _cachedToken = token;
+            _tokenExpiration = DateTimeOffset.UtcNow.Add(lifetime - margin);
+
+            return _cachedToken;
         }
-        var request = new HttpRequestMessage(HttpMethod.Post, $"{tokenUrl}/token")
+        finally
         {
-            Content = new FormUrlEncodedContent(formData)
-        };
-
-        var response = await httpClient.SendAsync(request);
-        response.EnsureSuccessStatusCode();
-
-        var content = await response.Content.ReadAsStringAsync();
-        var tokenResponse = JsonSerializer.Deserialize<JsonElement>(content);
-        var token = tokenResponse.GetProperty("access_token").GetString();
-        var expiresIn = tokenResponse.GetProperty("expires_in").GetInt32();
-
-        _cachedToken = token;
-        _tokenExpiration = DateTime.UtcNow.AddSeconds(expiresIn);
-
-        return _cachedToken;
+            _tokenLock.Release();
+        }
     }
 }

@@ -49,37 +49,60 @@ public class AuthorizationBehavior<TRequest, TResponse>(
                         attribute.Action,
                         $"Principal type '{principalType}' is not allowed. Allowed principal types: {attribute.PrincipalTypes}.");
 
-            if (principalType == PrincipalType.ServiceClient)
+            switch (principalType)
             {
-                foreach (var attribute in authorizeAttributes)
-                    if (!await identityService.IsValidServiceAsync(user.Client ?? user.SubjectId, attribute.Resource, attribute.Action, user.AccountId, user.Scopes, user.Audiences, cancellationToken))
-                        throw new ForbiddenAccessException(attribute.Resource, attribute.Action);
-            }
-            else
-            {
-                if (!Guid.TryParse(user.Id, out var userId))
-                {
-                    throw new UnauthorizedAccessException();
-                }
+                case PrincipalType.ServiceClient:
+                    foreach (var attribute in authorizeAttributes)
+                        if (!await identityService.IsValidServiceAsync(user.Client ?? user.SubjectId, attribute.Resource, attribute.Action, user.AccountId, user.Scopes, user.Audiences, cancellationToken))
+                            throw new ForbiddenAccessException(attribute.Resource, attribute.Action);
+                    break;
 
-                // Iterate through each AuthorizeAttribute
-                foreach (var attribute in authorizeAttributes)
-                {
-                    var resource = attribute.Resource;
-                    var action = attribute.Action;
-
-                    // Check if the user is in the required role
-                    var roleAuthorized = await identityService.IsInRoleAsync(userId, resource, action, cancellationToken);
-
-                    // Check if the user is authorized based on policies
-                    var policyAuthorized = await identityService.AuthorizeAsync(userId, resource, action, cancellationToken);
-
-                    // If the user is not authorized, throw ForbiddenAccessException
-                    if (!roleAuthorized || !policyAuthorized)
+                case PrincipalType.Driver:
+                    // Driver branch: a driver principal is authorized by principal type + claims only.
+                    // Require a driver identity and an account scope; assignment-level checks (e.g. Manager
+                    // ValidateDriverAssignment) are the handler's responsibility per the platform rules.
+                    // Drivers never carry roles/policies, so the user branch is skipped entirely.
+                    if (user.DriverId is not { } driverId || driverId == Guid.Empty
+                        || user.AccountId is not { } driverAccountId || driverAccountId == Guid.Empty)
                     {
-                        throw new ForbiddenAccessException(resource, action);
+                        var attribute = authorizeAttributes.First();
+                        throw new ForbiddenAccessException(
+                            attribute.Resource,
+                            attribute.Action,
+                            "Driver principal requires driver_id and account_id claims.");
                     }
-                }
+                    break;
+
+                case PrincipalType.PublicLink:
+                    // Public-link principals never invoke authorized operations. Public-link data access flows
+                    // exclusively through Manager's anonymous resolution endpoint; reject fail-closed here.
+                    {
+                        var attribute = authorizeAttributes.First();
+                        throw new ForbiddenAccessException(
+                            attribute.Resource,
+                            attribute.Action,
+                            "Public-link principals are not permitted to invoke authorized operations.");
+                    }
+
+                default:
+                    if (!Guid.TryParse(user.Id, out var userId))
+                    {
+                        throw new UnauthorizedAccessException();
+                    }
+
+                    // Iterate through each AuthorizeAttribute
+                    foreach (var attribute in authorizeAttributes)
+                    {
+                        var resource = attribute.Resource;
+                        var action = attribute.Action;
+
+                        // Single combined role + policy decision, evaluated by Security in one call
+                        if (!await identityService.AuthorizeUserAsync(userId, resource, action, cancellationToken))
+                        {
+                            throw new ForbiddenAccessException(resource, action);
+                        }
+                    }
+                    break;
             }
         }
 

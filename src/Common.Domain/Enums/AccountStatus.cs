@@ -13,16 +13,22 @@
 //  limitations under the License.
 //
 
-namespace Common.Domain.Constants;
+namespace Common.Domain.Enums;
 
-public static class FeatureKeys
+/// <summary>
+/// Authoritative operational state of an <c>Account</c> (tenant). Stored as a <see cref="short"/>.
+/// <para>
+/// Operational (normal access): <see cref="Trial"/>, <see cref="Active"/>.
+/// Non-operational: <see cref="Suspended"/> (data preserved, access blocked),
+/// <see cref="Cancelled"/> (access blocked; awaiting reactivation or archival),
+/// <see cref="Archived"/> (read-only, hidden from normal operations).
+/// </para>
+/// </summary>
+public enum AccountStatus : short
 {
-    public const string Geofencing = "geofencing";
-    public const string TripManagement = "trip-management";
-    public const string DriverMobile = "driver-mobile";
-    public const string PublicLinks = "public-links";
-    public const string Documents = "documents";
-    public const string Notifications = "notifications";
-    public const string GpsIntegration = "gps.integration";
-    public const string GpsPositionHistory = "gps.positionHistory";
+    Trial = 1,
+    Active = 2,
+    Suspended = 3,
+    Cancelled = 4,
+    Archived = 5,
 }

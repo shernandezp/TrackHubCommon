@@ -42,11 +42,51 @@ public sealed class TrackHubGraphQLErrorFilter : IErrorFilter
             return builder.Build();
         }
 
+        if (error.Exception is FeatureDisabledException featureDisabled)
+        {
+            return ErrorBuilder.FromError(error)
+                .SetMessage(featureDisabled.Message)
+                .SetCode("FEATURE_DISABLED")
+                .SetExtension("featureKey", featureDisabled.FeatureKey)
+                .Build();
+        }
+
+        if (error.Exception is AccountSuspendedException accountSuspended)
+        {
+            return ErrorBuilder.FromError(error)
+                .SetMessage(accountSuspended.Message)
+                .SetCode("ACCOUNT_SUSPENDED")
+                .SetExtension("accountStatus", accountSuspended.Status.ToString())
+                .Build();
+        }
+
+        if (error.Exception is TooManyRequestsException tooManyRequests)
+        {
+            var builder = ErrorBuilder.FromError(error)
+                .SetMessage(tooManyRequests.Message)
+                .SetCode("TOO_MANY_REQUESTS");
+
+            if (tooManyRequests.RetryAfterSeconds is { } retryAfter)
+            {
+                builder.SetExtension("retryAfterSeconds", retryAfter);
+            }
+
+            return builder.Build();
+        }
+
         if (error.Exception is UnauthorizedAccessException)
         {
             return ErrorBuilder.FromError(error)
                 .SetMessage("Authentication is required.")
                 .SetCode("UNAUTHORIZED")
+                .Build();
+        }
+
+        if (error.Exception is ConflictException conflict)
+        {
+            return ErrorBuilder.FromError(error)
+                .SetMessage(conflict.Message)
+                .SetCode("CONFLICT")
                 .Build();
         }
 
