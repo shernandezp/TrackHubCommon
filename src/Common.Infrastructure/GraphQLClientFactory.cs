@@ -32,7 +32,7 @@ public sealed class GraphQLClientFactory(IHttpClientFactory httpClientFactory, I
 
     private readonly SemaphoreSlim _tokenLock = new(1, 1);
     private string? _cachedToken;
-    private DateTime _tokenExpiration;
+    private DateTimeOffset _tokenExpiration;
 
     /// <summary>
     /// Creates a new instance of `IGraphQLClient` with the specified name.
@@ -94,7 +94,7 @@ public sealed class GraphQLClientFactory(IHttpClientFactory httpClientFactory, I
     /// <returns>The access token.</returns>
     public async Task<string?> GetClientCredentialsTokenAsync()
     {
-        if (_cachedToken != null && DateTime.UtcNow < _tokenExpiration)
+        if (_cachedToken != null && DateTimeOffset.UtcNow < _tokenExpiration)
         {
             return _cachedToken;
         }
@@ -104,7 +104,7 @@ public sealed class GraphQLClientFactory(IHttpClientFactory httpClientFactory, I
         await _tokenLock.WaitAsync();
         try
         {
-            if (_cachedToken != null && DateTime.UtcNow < _tokenExpiration)
+            if (_cachedToken != null && DateTimeOffset.UtcNow < _tokenExpiration)
             {
                 return _cachedToken;
             }
@@ -144,7 +144,7 @@ public sealed class GraphQLClientFactory(IHttpClientFactory httpClientFactory, I
             var margin = lifetime > TokenExpiryMargin + TokenExpiryMargin ? TokenExpiryMargin : TimeSpan.Zero;
 
             _cachedToken = token;
-            _tokenExpiration = DateTime.UtcNow.Add(lifetime - margin);
+            _tokenExpiration = DateTimeOffset.UtcNow.Add(lifetime - margin);
 
             return _cachedToken;
         }

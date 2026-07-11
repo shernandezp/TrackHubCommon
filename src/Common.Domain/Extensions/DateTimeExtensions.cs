@@ -15,36 +15,22 @@
 
 namespace Common.Domain.Extensions;
 
+// Timestamps are DateTimeOffset (UTC) everywhere; DateTime overloads were removed on purpose
+// so naive DateTime values cannot re-enter the formatting paths.
 public static class DateTimeExtensions
 {
     public static string ToIso8601String(this DateTimeOffset date)
-        => date.ToString("yyyy-MM-ddTHH:mm:ssZ");
-
-    public static string ToIso8601String(this DateTime date)
-        => date.ToString("yyyy-MM-ddTHH:mm:ssZ");
-
-    public static string FormatDateTime(this DateTime? date)
-        => date == null ? string.Empty : date.Value.FormatDateTime();
+        => date.ToUniversalTime().ToString("yyyy-MM-ddTHH:mm:ssZ");
 
     public static string FormatDateTime(this DateTimeOffset? date)
         => date == null ? string.Empty : date.Value.FormatDateTime();
 
-    public static string FormatDateTime(this DateTime date)
-        => date.ToString("yyyy-MM-dd HH:mm:ss");
-
     public static string FormatDateTime(this DateTimeOffset date)
         => date.ToString("yyyy-MM-dd HH:mm:ss");
-
-    public static string FormatDate(this DateTime? date)
-        => date == null ? string.Empty : date.Value.FormatDate();
 
     public static string FormatDate(this DateTimeOffset? date)
         => date == null ? string.Empty : date.Value.FormatDate();
 
-    public static string FormatDate(this DateTime date)
-        => date.ToString("yyyy-MM-dd");
-
     public static string FormatDate(this DateTimeOffset date)
         => date.ToString("yyyy-MM-dd");
-
 }

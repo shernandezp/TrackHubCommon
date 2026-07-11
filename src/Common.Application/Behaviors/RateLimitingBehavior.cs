@@ -27,7 +27,7 @@ public class RateLimitingBehavior<TRequest, TResponse>(IUser user)
 {
     private static readonly ConcurrentDictionary<string, RateLimitInfo> _rateLimitStore = new();
     private static readonly Lock CleanupLock = new();
-    private static DateTime LastCleanup = DateTime.UtcNow;
+    private static DateTimeOffset LastCleanup = DateTimeOffset.UtcNow;
 
     public async Task<TResponse> HandleAsync(TRequest request, Func<Task<TResponse>> next, CancellationToken cancellationToken)
     {
@@ -80,14 +80,14 @@ public class RateLimitingBehavior<TRequest, TResponse>(IUser user)
 
     private static void PerformCleanup()
     {
-        if ((DateTime.UtcNow - LastCleanup).TotalMinutes < 5)
+        if ((DateTimeOffset.UtcNow - LastCleanup).TotalMinutes < 5)
         {
             return;
         }
 
         lock (CleanupLock)
         {
-            if ((DateTime.UtcNow - LastCleanup).TotalMinutes < 5)
+            if ((DateTimeOffset.UtcNow - LastCleanup).TotalMinutes < 5)
             {
                 return;
             }
@@ -102,20 +102,20 @@ public class RateLimitingBehavior<TRequest, TResponse>(IUser user)
                 _rateLimitStore.TryRemove(key, out _);
             }
 
-            LastCleanup = DateTime.UtcNow;
+            LastCleanup = DateTimeOffset.UtcNow;
         }
     }
 
     private class RateLimitInfo(int permitLimit, int windowSeconds)
     {
-        private readonly Queue<DateTime> _requestTimestamps = new();
+        private readonly Queue<DateTimeOffset> _requestTimestamps = new();
         private readonly Lock _lock = new();
 
         public bool TryAcquire()
         {
             lock (_lock)
             {
-                var now = DateTime.UtcNow;
+                var now = DateTimeOffset.UtcNow;
                 var windowStart = now.AddSeconds(-windowSeconds);
 
                 while (_requestTimestamps.Count > 0 && _requestTimestamps.Peek() < windowStart)
@@ -144,7 +144,7 @@ public class RateLimitingBehavior<TRequest, TResponse>(IUser user)
 
                 var oldestRequest = _requestTimestamps.Peek();
                 var windowEnd = oldestRequest.AddSeconds(windowSeconds);
-                return (windowEnd - DateTime.UtcNow).TotalSeconds;
+                return (windowEnd - DateTimeOffset.UtcNow).TotalSeconds;
             }
         }
 
@@ -157,7 +157,7 @@ public class RateLimitingBehavior<TRequest, TResponse>(IUser user)
                     return true;
                 }
 
-                var now = DateTime.UtcNow;
+                var now = DateTimeOffset.UtcNow;
                 var windowStart = now.AddSeconds(-windowSeconds * 2);
                 return _requestTimestamps.All(t => t < windowStart);
             }
