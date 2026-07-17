@@ -23,6 +23,8 @@ public static class FeatureKeys
     public const string PublicLinks = "public-links";
     public const string Documents = "documents";
     public const string Notifications = "notifications";
+    public const string NotificationsEmail = "notifications.email";
+    public const string NotificationsWhatsApp = "notifications.whatsapp";
     public const string GpsIntegration = "gps.integration";
     public const string GpsPositionHistory = "gps.positionHistory";
 }
