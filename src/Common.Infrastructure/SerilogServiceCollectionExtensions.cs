@@ -15,14 +15,16 @@
 
 using Microsoft.Extensions.Hosting;
 using Serilog;
+using Serilog.Events;
 
 namespace Microsoft.Extensions.DependencyInjection;
 
 /// <summary>
-/// Wires Serilog into the host using configuration only. All sinks (including the
-/// PostgreSQL database sink), minimum levels, overrides and enrichers are read from the
-/// <c>Serilog</c> section of appsettings, so APIs and background services opt in to
-/// database logging by editing configuration only.
+/// Wires Serilog into the host using configuration. All sinks (including the PostgreSQL
+/// database sink), minimum levels, overrides and enrichers are read from the <c>Serilog</c>
+/// section of appsettings, so APIs and background services opt in to database logging by
+/// editing configuration only. On top of that, this method applies the platform-wide source
+/// overrides that every TrackHub service needs (so they are not duplicated in each appsettings).
 /// </summary>
 public static class SerilogServiceCollectionExtensions
 {
@@ -34,6 +36,13 @@ public static class SerilogServiceCollectionExtensions
         builder.Services.AddSerilog((services, configuration) => configuration
             .ReadFrom.Configuration(builder.Configuration)
             .ReadFrom.Services(services)
+            // The Polly v8 resilience telemetry (from the shared AddStandardResilienceHandler on
+            // every inter-service GraphQL client) logs an Information "Execution attempt" event per
+            // call — which floods the PostgreSQL logs table, especially from the SyncWorker's
+            // constant loops. Suppress it fleet-wide to Warning here (applied after ReadFrom so it
+            // wins) rather than repeating the override in each service's appsettings. Genuine
+            // resilience Warnings/Errors (retries exhausted, circuit opened) still flow through.
+            .MinimumLevel.Override("Polly", LogEventLevel.Warning)
             .Enrich.FromLogContext()
             .Enrich.WithMachineName()
             .Enrich.WithEnvironmentName()

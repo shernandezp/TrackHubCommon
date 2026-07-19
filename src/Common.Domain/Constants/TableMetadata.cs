@@ -51,6 +51,8 @@ public static class TableMetadata
     public const string Role = "roles";
     public const string NotificationRule = "notification_rules";
     public const string NotificationDelivery = "notification_deliveries";
+    public const string NotificationTemplate = "notification_templates";
+    public const string AlertSubscription = "alert_subscriptions";
     public const string ServiceClientPermission = "service_client_permissions";
     public const string Transporter = "transporters";
     public const string TransporterDeviceAssignment = "transporter_device_assignments";
