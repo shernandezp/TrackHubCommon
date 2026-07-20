@@ -40,6 +40,7 @@ public static class TableMetadata
     public const string Group = "groups";
     public const string Operator = "operators";
     public const string PointOfInterest = "points_of_interest";
+    public const string PlatformAnnouncement = "platform_announcements";
     public const string Policy = "policies";
     public const string Position = "position";
     public const string PublicLinkGrant = "public_link_grants";
