@@ -35,6 +35,7 @@ namespace Common.Domain.Constants;
 ///   <item><term>document-retention-cleanup</term><description>Manager DocumentRetentionCleanupService — only per purged version.</description></item>
 ///   <item><term>trial-expiration</term><description>Manager TrialExpirationService — only per transitioned account (plus a Failed row on error).</description></item>
 ///   <item><term>geofence-dwell-evaluation</term><description>Geofencing DwellEvaluationService — only when it raised a dwell alert.</description></item>
+///   <item><term>workforce-expiration-scan</term><description>Manager WorkforceExpirationService — only per raised qualification-expiration alert.</description></item>
 /// </list>
 /// <para>
 /// Net result: <c>alert-evaluation</c> is the ONLY key with a guaranteed recording floor, and that
@@ -52,6 +53,7 @@ public static class BackgroundJobKeys
     public const string DocumentRetentionCleanup = "document-retention-cleanup";
     public const string TrialExpiration = "trial-expiration";
     public const string GeofenceDwellEvaluation = "geofence-dwell-evaluation";
+    public const string WorkforceExpirationScan = "workforce-expiration-scan";
 
     /// <summary>
     /// Keys whose producer writes a row on a guaranteed schedule, so a missing recent row is a real
